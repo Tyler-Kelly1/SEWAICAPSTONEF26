@@ -41,6 +41,16 @@ Backend development is structured using a **three-layered architecture**, organi
   - Controllers MUST be **thin** and contain minimal to no business logic. Their sole responsibility is handling HTTP requests/responses and delegating actions to the Engine layer.
   - The corresponding `(Page)Engine` MUST be injected into the Controller via Dependency Injection (DI).
 
+### 3. Request DTO & Parameter Handling Guidelines
+
+- **GET Operations (`[HttpGet]`):**
+  - Endpoints with **3 or fewer arguments** (e.g., query params, route parameters) may pass parameters individually in the action method signature.
+  - Endpoints with **more than 3 arguments (> 3 args)** MUST use a dedicated Request DTO (e.g., bound with `[FromQuery]`).
+
+- **Non-GET Operations (`POST`, `PUT`, `DELETE`, etc.):**
+  - ALL non-GET endpoints MUST use a dedicated Request DTO for request payloads.
+  - Request DTOs MUST enforce validation using attribute validation annotations (e.g., `[Required]`, `[StringLength]`, `[Range]`, etc.).
+
 ---
 
 ## 🎨 Frontend (FE) Architecture & Practices

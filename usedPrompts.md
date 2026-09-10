@@ -58,3 +58,18 @@ This file records all AI prompts used during the development of this project in 
 ### [2026-09-09 19:06:03 -05:00] - User: tyler
 **Prompt:**
 > Commit and push all changes, include a detialed commit log with the disclaimer it was written by AI. However include this following commit message stating explictly it was from me Tyler "This is the intial scaffolding of our capstone project. We are building a web app using a Postgress DB deployed in docker for local dev, a .NET Core BE with ECF for easy DB mapping, and a Vue js FE with the Vuetifiy comp library for rapid devlopment. I am personally using Google AntiGravity CLI with the school gemini plan. Personally this is my favorite form of agentic devolpment. At work Im restricted to in editor agents (Which is good for producing prod code lol) so this is my fun break and experment taking my foot of the coding gas and focusing on my system architecture. All architecture descisions made in this scaffolding were purely human (and likely not perfect lol) based on my own prior experince."
+
+### [2026-09-10 11:51:33 -05:00] - User: tyler
+**Prompt:**
+> update the architecture.md for the BE to use a the following pattern. For GET Operations anything over 3 args must have a request DTO. For all other endpoints (post,put,del, etc) use a request DTO with attribute validation.
+
+### [2026-09-10 11:56:29 -05:00] - User: tyler
+**Prompt:**
+> Audit the existing demo to abide by this new standard
+
+### [2026-09-10 12:16:40 -05:00] - User: tyler
+**Prompt:**
+> commit and push these changes, with the follow message "Update architecture.md for request DTOs, audit demo to ensure compliance - Tyler (Human Written)"
+
+
+
