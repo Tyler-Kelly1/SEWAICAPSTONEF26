@@ -1,0 +1,16 @@
+# Build & Binary Output
+bin/
+obj/
+backend/bin/
+backend/obj/
+
+# Node
+node_modules/
+dist/
+
+# IDE & OS files
+.vs/
+.vscode/
+.idea/
+.DS_Store
+*.user
