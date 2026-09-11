@@ -17,6 +17,9 @@
 4. **Testing & Quality Assurance:**
    - After initial scaffolding is completed, all features **MUST** have corresponding test coverage via a test suite.
 
+5. **Package Approval & Justification:**
+   - All NuGet and Node top-level packages **MUST** be explicitly user approved and justified in the architecture logs ([`architecture.md`](file:///C:/Users/tyler/Overload/architecture.md)). Transitive or package dependencies do not need to be justified, but top-level packages must be clearly justified.
+
 ---
 Refer to [`rules.md`](file:///C:/Users/tyler/Overload/rules.md) for complete project guidelines and [`architecture.md`](file:///C:/Users/tyler/Overload/architecture.md) for coding standards.
 

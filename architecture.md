@@ -105,10 +105,44 @@ Service Layer ((PageName).api.js) ➔ Parent Component ➔ Child Component
 
 ---
 
+## 📦 Package & Dependency Management Guidelines
+
+- **Explicit User Approval:** All top-level NuGet (`.csproj`) and Node (`package.json`) packages **MUST** be explicitly user-approved and justified in the architecture logs.
+- **Scope & Exclusions:**
+  - **Top-Level Packages:** MUST be explicitly user-approved and justified in the [Package Decisions Log](#-package-decisions-log).
+  - **Transitive & Sub-Dependencies:** No need to justify transitive or package dependencies pulled in automatically by top-level packages.
+- **Enforcement:** AI agents are strictly forbidden from introducing new top-level NuGet or Node packages without prior explicit human approval and documented justification.
+
+---
+
 ## 📝 Architecture Decisions Log
 
 *(Log any human user architectural choices, such as Pinia vs. Composable decisions, below).*
 
-| Date | Feature / Flow | User Choice | Justification |
-| :--- | :--- | :--- | :--- |
-| *N/A* | *No multi-generation (>3 levels) component flows created yet* | - | - |
+| Date | User | Feature / Flow | User Choice | Justification |
+| :--- | :--- | :--- | :--- | :--- |
+| *N/A* | - | *No multi-generation (>3 levels) component flows created yet* | - | - |
+
+---
+
+## 📦 Package Decisions Log
+
+*(Log explicit human user approvals and justifications for all top-level NuGet and Node packages below).*
+
+| Date | User | Package Name | Package Manager | Version | Justification |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 2026-09-11 | tyler | `Microsoft.AspNetCore.OpenApi` | NuGet (Backend) | 10.0.6 | OpenApi generates auto documentaion for our BE API endponints. Is serves as the backbone for endpoint visualization with swagger or scalar. |
+| 2026-09-11 | tyler | `Microsoft.EntityFrameworkCore` | NuGet (Backend) | 10.0.12 | These packages all work together to suport the ORM to the DB. We are using an ORM in this project for rapid devlopment and to avoid buggy SQL. While ECF does introuduce a performance overhead it is still remarkable optimized (shout out Microsoft) |
+| 2026-09-11 | tyler | `Microsoft.EntityFrameworkCore.Design` | NuGet (Backend) | 10.0.12 | These packages all work together to suport the ORM to the DB. We are using an ORM in this project for rapid devlopment and to avoid buggy SQL. While ECF does introuduce a performance overhead it is still remarkable optimized (shout out Microsoft) |
+| 2026-09-11 | tyler | `Microsoft.EntityFrameworkCore.Tools` | NuGet (Backend) | 10.0.12 | These packages all work together to suport the ORM to the DB. We are using an ORM in this project for rapid devlopment and to avoid buggy SQL. While ECF does introuduce a performance overhead it is still remarkable optimized (shout out Microsoft) |
+| 2026-09-11 | tyler | `Npgsql.EntityFrameworkCore.PostgreSQL` | NuGet (Backend) | 10.0.3 | These packages all work together to suport the ORM to the DB. We are using an ORM in this project for rapid devlopment and to avoid buggy SQL. While ECF does introuduce a performance overhead it is still remarkable optimized (shout out Microsoft) |
+| 2026-09-11 | tyler | `Swashbuckle.AspNetCore` | NuGet (Backend) | 10.2.3 | Swagger, it allows us to visualize and test endpoints much easier. |
+| 2026-09-11 | tyler | `@mdi/font` | npm (Frontend) | ^7.4.47 | MDI icons for ui usability. |
+| 2026-09-11 | tyler | `vue` | npm (Frontend) | ^3.5.41 | Vue and Vuetifiy are an extremly powerful combo for rapid, modern web application devlopment. Vue js is growing both in ecosystem and industry use, and is a great alternative to React. It will act as the powerhouse turning our web pages into apps. |
+| 2026-09-11 | tyler | `vuetify` | npm (Frontend) | ^4.2.1 | Vue and Vuetifiy are an extremly powerful combo for rapid, modern web application devlopment. Vue js is growing both in ecosystem and industry use, and is a great alternative to React. It will act as the powerhouse turning our web pages into apps. |
+| 2026-09-11 | tyler | `@vitejs/plugin-vue` | npm (Frontend) | ^6.0.8 | Vue and Vuetifiy are an extremly powerful combo for rapid, modern web application devlopment. Vue js is growing both in ecosystem and industry use, and is a great alternative to React. It will act as the powerhouse turning our web pages into apps. |
+| 2026-09-11 | tyler | `vite` | npm (Frontend) | ^8.2.2 | Vite hardly needs an explanation, the build tool of the web. Used for building our project for local devolpment. |
+
+
+
+

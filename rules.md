@@ -2,6 +2,7 @@
 
 ## 1. Architectural Decisions
 * **Human-Led Architecture:** Any architecture for this project **MUST** be done by a human. AI tools and agents are not permitted to make or alter system architecture without explicit human design and authorization.
+* **Package Approval & Justification:** All NuGet and Node packages **MUST** be explicitly user approved and justified in the architecture logs ([`architecture.md`](file:///C:/Users/tyler/Overload/architecture.md)). Transitive or package dependencies do not need to be justified, but top-level packages MUST be clearly justified.
 
 ## 2. AI Code Attribution
 * **Explicit Commit Notation:** All AI-generated code must be explicitly noted in the git commit message.

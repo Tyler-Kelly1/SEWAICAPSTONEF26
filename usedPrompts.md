@@ -67,9 +67,30 @@ This file records all AI prompts used during the development of this project in 
 **Prompt:**
 > Audit the existing demo to abide by this new standard
 
-### [2026-09-10 12:16:40 -05:00] - User: tyler
+### [2026-09-11 10:09:41 -05:00] - User: tyler
 **Prompt:**
-> commit and push these changes, with the follow message "Update architecture.md for request DTOs, audit demo to ensure compliance - Tyler (Human Written)"
+> Add the following to the rules/architecture docs for agents: All Nuget and Node packages MUST be explicitly user approved and justified in the architecture logs. No need to justifiy transative or package dependecies but top level packages must be clearly justified. After updating docs, prompt me until I provide reason for current top level packages and store the results in the architecture logs in a new table for package decisions
+
+### [2026-09-11 10:16:25 -05:00] - User: tyler
+**Prompt:**
+> 1. OpenApi generates auto documentaion for our BE API endponints. Is serves as the backbone for endpoint visualization with swagger or scalar. 2/3/4/5: These packages all work together to suport the ORM to the DB. We are using an ORM in this project for rapid devlopment and to avoid buggy SQL. While ECF does introuduce a performance overhead it is still remarkable optimized (shout out Microsoft) 6. Swagger, it allows us to visualize and test endpoints much easier. 7. MDI icons for ui usability. 8/9/10: Vue and Vuetifiy are an extremly powerful combo for rapid, modern web application devlopment. Vue js is growing both in ecosystem and industry use, and is a great alternative to React. It will act as the powerhouse turning our web pages into apps. 11. Vite hardly needs an explanation, the build tool of the web. Used for building our project for local devolpment.
+
+### [2026-09-11 10:17:12 -05:00] - User: tyler
+**Prompt:**
+> Add user stamps to the decision tabls
+
+### [2026-09-11 10:18:18 -05:00] - User: tyler
+**Prompt:**
+> Don't rewrite my justifications leave them in there raw human form
+
+### [2026-09-11 10:19:24 -05:00] - User: tyler
+**Prompt:**
+> Be sure to log this conversation in prompt logs, review the changes made and commit and push them to the repo.
+
+
+
+
+
 
 
 
