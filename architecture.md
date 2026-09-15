@@ -142,6 +142,17 @@ Service Layer ((PageName).api.js) ➔ Parent Component ➔ Child Component
 | 2026-09-11 | tyler | `vuetify` | npm (Frontend) | ^4.2.1 | Vue and Vuetifiy are an extremly powerful combo for rapid, modern web application devlopment. Vue js is growing both in ecosystem and industry use, and is a great alternative to React. It will act as the powerhouse turning our web pages into apps. |
 | 2026-09-11 | tyler | `@vitejs/plugin-vue` | npm (Frontend) | ^6.0.8 | Vue and Vuetifiy are an extremly powerful combo for rapid, modern web application devlopment. Vue js is growing both in ecosystem and industry use, and is a great alternative to React. It will act as the powerhouse turning our web pages into apps. |
 | 2026-09-11 | tyler | `vite` | npm (Frontend) | ^8.2.2 | Vite hardly needs an explanation, the build tool of the web. Used for building our project for local devolpment. |
+| 2026-09-14 | tyler | `Microsoft.NET.Test.Sdk` | NuGet (Backend Tests) | 17.13.0 | Test SDK for .NET test execution. |
+| 2026-09-14 | tyler | `MSTest.TestAdapter` | NuGet (Backend & UI Tests) | 3.8.2 | MSTest adapter for test discovery and execution. |
+| 2026-09-14 | tyler | `MSTest.TestFramework` | NuGet (Backend & UI Tests) | 3.8.2 | MSTest framework for endpoint and UI unit testing. |
+| 2026-09-14 | tyler | `Microsoft.AspNetCore.Mvc.Testing` | NuGet (Backend Tests) | 10.0.0 | Infrastructure for testing ASP.NET Core API endpoints. |
+| 2026-09-14 | tyler | `Microsoft.EntityFrameworkCore.InMemory` | NuGet (Backend Tests) | 10.0.0 | In-memory database provider for unit testing EF Core DbContext logic. |
+| 2026-09-14 | tyler | `Selenium.WebDriver` | NuGet (UI Tests) | 4.29.0 | Core Selenium browser automation library for full stack interactive UI testing. |
+| 2026-09-14 | tyler | `Selenium.WebDriver.ChromeDriver` | NuGet (UI Tests) | 133.0.6943.5300 | ChromeDriver executable distribution for Selenium tests. |
+| 2026-09-14 | tyler | `vitest` | npm (Frontend) | ^5.0.0 | Vitest framework for frontend JS/TS unit and component testing. |
+| 2026-09-14 | tyler | `@vue/test-utils` | npm (Frontend) | ^2.5.0 | Official Vue 3 component testing utilities for Vitest. |
+| 2026-09-14 | tyler | `jsdom` | npm (Frontend) | ^29.1.1 | DOM environment implementation for Vitest unit testing. |
+
 
 
 

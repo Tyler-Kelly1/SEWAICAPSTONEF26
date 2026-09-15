@@ -92,6 +92,39 @@ npm run dev
 The frontend UI will be available at:
 - **Vite Dev Server:** [http://localhost:5173](http://localhost:5173)
 
+## 🧪 Test Suite Execution
+
+The repository contains test suites for endpoint testing, frontend unit testing, and full-stack UI testing:
+
+### 1. Backend Endpoint Tests (MSTest)
+Run the .NET MSTest suite for backend controllers and engines:
+```bash
+dotnet test tests/Backend.Tests/Backend.Tests.csproj
+```
+
+### 2. Frontend JS Tests (Vitest)
+Run the Vitest suite for frontend API services and components:
+```bash
+cd frontend
+npm test
+```
+To run Vitest in interactive watch mode:
+```bash
+npm run test:watch
+```
+
+### 3. Full Stack Interactive UI Tests (Selenium + MSTest)
+Run the Selenium UI tests (requires Chrome installed; defaults to headless mode):
+```bash
+dotnet test tests/Selenium.Tests/Selenium.Tests.csproj
+```
+
+### 4. Run All .NET Test Suites
+To run all .NET test suites (Backend + Selenium UI tests):
+```bash
+dotnet test Overload.slnx
+```
+
 ---
 
 ## 🔍 Verification & Troubleshooting
@@ -102,3 +135,4 @@ The frontend UI will be available at:
    Navigate to `http://localhost:5245/api/TestTable` to check the GET endpoint response.
 3. **Verify Frontend UI:**
    Navigate to `http://localhost:5173` to test adding and displaying items in `TEST_TABLE`.
+

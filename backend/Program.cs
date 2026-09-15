@@ -12,6 +12,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<ITestTableEngine, TestTableEngine>();
+builder.Services.AddScoped<IWorkoutSessionEngine, WorkoutSessionEngine>();
 
 builder.Services.AddControllers();
 
@@ -31,7 +32,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Auto-apply EF Core Migrations or ensure database creation at startup
+// Auto-apply EF Core Migrations or ensure database creation at startup and seed initial fake data
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -44,6 +45,15 @@ using (var scope = app.Services.CreateScope())
         // Fallback to EnsureCreated if migrations fail or DB is being provisioned dynamically
         app.Logger.LogWarning(ex, "EF Core Migration failed on startup. Attempting EnsureCreated...");
         dbContext.Database.EnsureCreated();
+    }
+
+    try
+    {
+        DbInitializer.SeedAsync(dbContext).GetAwaiter().GetResult();
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "Failed to seed database.");
     }
 }
 

@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/backend/">
+    <Project Path="backend/Backend.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Backend.Tests/Backend.Tests.csproj" />
+    <Project Path="tests/Selenium.Tests/Selenium.Tests.csproj" />
+  </Folder>
+</Solution>

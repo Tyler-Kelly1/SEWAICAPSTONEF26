@@ -87,10 +87,27 @@ This file records all AI prompts used during the development of this project in 
 **Prompt:**
 > Be sure to log this conversation in prompt logs, review the changes made and commit and push them to the repo.
 
+### [2026-09-14 20:46:23 -05:00] - User: tyler
+**Prompt:**
+> We are going to introuduce a Test suite scaffolding for the project. We will use MSTest for our endpoint testing, Vitest for our FE Js, and Selenium for full stack, interactive UI testing. Set-up demo test for the current demo app.
 
+### [2026-09-15 10:55:56 -05:00] - User: tyler
+**Prompt:**
+> update FE Selenium test to not be headless, I want to see test happen
 
+### [2026-09-15 11:45:18 -05:00] - User: tyler
+**Prompt:**
+> I added a folder called /design_docs inside of this directory, this currently has documentation on basic data models. Implement these models and populate some fake data into the DB. In addition add a simple UI to the FE for displaying the fake data. If you have any question ask me before going forward.
 
+### [2026-09-15 11:54:28 -05:00] - User: tyler
+**Prompt:**
+> read it again
 
+### [2026-09-15 12:19:53 -05:00] - User: tyler
+**Prompt:**
+> double check your migrations, things did not properly migrate to the DB
 
-
+### [2026-09-15 12:27:13 -05:00] - User: tyler
+**Prompt:**
+> Well done Gemini, Commit and push these changes commit message - "Added basic data models for tracking workouts, and migrated to DB"
 
