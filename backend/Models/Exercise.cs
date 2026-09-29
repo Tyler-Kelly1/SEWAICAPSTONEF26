@@ -1,3 +1,5 @@
+using Backend.Models.Templates;
+
 namespace Backend.Models;
 
 public class Exercise
@@ -8,4 +10,7 @@ public class Exercise
 
     public string ExerciseName { get; set; } = string.Empty;
     public List<Set> Sets { get; set; } = new();
+
+    public int? ExerciseTemplateId { get; set; }
+    public Exercise_Template? Template { get; set; }
 }

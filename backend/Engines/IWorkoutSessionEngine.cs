@@ -8,4 +8,5 @@ public interface IWorkoutSessionEngine
     Task<IEnumerable<SessionDto>> GetSessionsAsync(string? userId = null);
     Task<SessionDto?> GetSessionByIdAsync(int id);
     Task<SessionDto> CreateSessionAsync(CreateSessionDto dto);
+    Task<ExerciseGoalResponseDto> GetGoalSetsForExerciseAsync(ExerciseGoalRequestDto dto);
 }

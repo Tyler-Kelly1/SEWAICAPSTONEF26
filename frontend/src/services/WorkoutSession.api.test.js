@@ -83,4 +83,83 @@ describe('WorkoutSessionApi Service', () => {
     )
     expect(result).toEqual(mockResponse)
   })
+
+  it('getGoalSets sends POST request to /goal-sets', async () => {
+    const goalRequest = {
+      userId: 'tyler_dev',
+      exerciseName: 'Barbell Bench Press',
+      sets: []
+    }
+
+    const mockGoalResponse = {
+      exerciseName: 'Barbell Bench Press',
+      goalSets: [{ setNumber: 1, weight: 195, reps: 6 }]
+    }
+
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockGoalResponse
+    })
+
+    const result = await WorkoutSessionApi.getGoalSets(goalRequest)
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/goal-sets'),
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(goalRequest)
+      })
+    )
+    expect(result).toEqual(mockGoalResponse)
+  })
+
+  it('createTemplate sends POST request to /templates', async () => {
+    const templatePayload = {
+      userId: 'tyler_dev',
+      exercise_Name: 'Incline Bench Press',
+      min_Set: 3,
+      max_Set: 5,
+      weight_Step: 0.05,
+      volume_Step: 1,
+      setTemplates: [{ min_Reps: 8, max_Reps: 12, failure_Set: false }]
+    }
+
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: 5, ...templatePayload })
+    })
+
+    const result = await WorkoutSessionApi.createTemplate(templatePayload)
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/templates'),
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+    )
+    expect(result.id).toBe(5)
+  })
+
+  it('createWorkoutTemplate sends POST request to /workout-templates', async () => {
+    const workoutTemplatePayload = {
+      userId: 'tyler_dev',
+      workout_Name: 'Leg Day Blitz',
+      exerciseTemplates: []
+    }
+
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: 2, ...workoutTemplatePayload })
+    })
+
+    const result = await WorkoutSessionApi.createWorkoutTemplate(workoutTemplatePayload)
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/workout-templates'),
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+    )
+    expect(result.id).toBe(2)
+  })
 })

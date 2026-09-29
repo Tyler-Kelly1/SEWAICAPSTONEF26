@@ -152,6 +152,8 @@ Service Layer ((PageName).api.js) ➔ Parent Component ➔ Child Component
 | 2026-09-14 | tyler | `vitest` | npm (Frontend) | ^5.0.0 | Vitest framework for frontend JS/TS unit and component testing. |
 | 2026-09-14 | tyler | `@vue/test-utils` | npm (Frontend) | ^2.5.0 | Official Vue 3 component testing utilities for Vitest. |
 | 2026-09-14 | tyler | `jsdom` | npm (Frontend) | ^29.1.1 | DOM environment implementation for Vitest unit testing. |
+| 2026-09-29 | tyler | `sass-embedded` | npm (Frontend) | ^1.105.1 | Required by Vite to compile SCSS styles (<style lang="scss">) for custom Vue components with paper notebook styling. |
+
 
 
 

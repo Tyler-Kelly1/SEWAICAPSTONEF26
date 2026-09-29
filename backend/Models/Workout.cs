@@ -1,3 +1,5 @@
+using Backend.Models.Templates;
+
 namespace Backend.Models;
 
 public class Workout
@@ -8,4 +10,7 @@ public class Workout
 
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
+
+    public int? WorkoutTemplateId { get; set; }
+    public Workout_Template? Template { get; set; }
 }

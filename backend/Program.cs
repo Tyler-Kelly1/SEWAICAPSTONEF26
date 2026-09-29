@@ -11,8 +11,9 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-builder.Services.AddScoped<ITestTableEngine, TestTableEngine>();
 builder.Services.AddScoped<IWorkoutSessionEngine, WorkoutSessionEngine>();
+builder.Services.AddScoped<IOverloadEngine, OverloadEngine>();
+builder.Services.AddScoped<IUserEngine, UserEngine>();
 
 builder.Services.AddControllers();
 

@@ -64,6 +64,31 @@ public class WorkoutSessionControllerTests
         // Assert
         Assert.IsInstanceOfType(result.Result, typeof(CreatedAtActionResult));
     }
+
+    [TestMethod]
+    public async Task GetGoalSets_ValidDto_ReturnsOkResultWithGoalSets()
+    {
+        // Arrange
+        var dto = new ExerciseGoalRequestDto
+        {
+            ExerciseName = "Bench Press",
+            Sets = new List<CreateSetDto>
+            {
+                new CreateSetDto { Weight = 135, Reps = 10 }
+            }
+        };
+
+        // Act
+        var result = await _controller.GetGoalSets(dto);
+
+        // Assert
+        Assert.IsInstanceOfType(result.Result, typeof(OkObjectResult));
+        var okResult = (OkObjectResult)result.Result!;
+        var response = okResult.Value as ExerciseGoalResponseDto;
+        Assert.IsNotNull(response);
+        Assert.AreEqual("Bench Press", response.ExerciseName);
+        Assert.AreEqual(1, response.GoalSets.Count);
+    }
 }
 
 public class FakeWorkoutSessionEngine : IWorkoutSessionEngine
@@ -113,5 +138,21 @@ public class FakeWorkoutSessionEngine : IWorkoutSessionEngine
 
         _sessions.Add(session);
         return Task.FromResult(session);
+    }
+
+    public Task<ExerciseGoalResponseDto> GetGoalSetsForExerciseAsync(ExerciseGoalRequestDto dto)
+    {
+        var response = new ExerciseGoalResponseDto
+        {
+            ExerciseName = dto.ExerciseName,
+            ExerciseTemplateId = dto.ExerciseTemplateId,
+            GoalSets = dto.Sets.Select((s, index) => new GoalSetDto
+            {
+                SetNumber = index + 1,
+                Weight = s.Weight + 5,
+                Reps = s.Reps
+            }).ToList()
+        };
+        return Task.FromResult(response);
     }
 }

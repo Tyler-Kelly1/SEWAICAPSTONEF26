@@ -107,7 +107,171 @@ This file records all AI prompts used during the development of this project in 
 **Prompt:**
 > double check your migrations, things did not properly migrate to the DB
 
-### [2026-09-15 12:27:13 -05:00] - User: tyler
-**Prompt:**
-> Well done Gemini, Commit and push these changes commit message - "Added basic data models for tracking workouts, and migrated to DB"
 
+
+### [2026-09-19 16:30:51 -05:00] - User: tyler
+**Prompt:**
+> For the get future set point, update this enginge layer to get the true previous values of that corresponding exercise from the DB, be sure to DI Db context into the overload engine
+
+### [2026-09-19 16:37:16 -05:00] - User: tyler
+**Prompt:**
+> Load the DB with test data for all tables, run test against this test data to ensure everything passess. Let me know if you have any questions
+
+### [2026-09-19 16:14:05 -05:00] - User: tyler
+**Prompt:**
+> what is the swagger url
+
+### [2026-09-19 16:16:25 -05:00] - User: tyler
+**Prompt:**
+> migrations are not up to date reflect changes to model templates
+
+
+
+### [2026-09-19 16:06:14 -05:00] - User: tyler
+**Prompt:**
+> DI the Overload engine into WorkoutSessionEngine, add an endpoint that gets the goal sets for a given exercise. For example, I would pass in an exercise with a list of 3 sets, the endpoint would return the goal sets based on the rules found in the templates
+
+### [2026-09-19 16:17:12 -05:00] - User: tyler
+**Prompt:**
+> Why is it a POST endpoint and not a GET endpoint?
+
+
+
+
+### [2026-09-19 16:50:57 -05:00] - User: tyler
+**Prompt:**
+> add some sample tempaltes to the db, you have permision to write wherever needed
+
+
+
+### [2026-09-19 16:40:40 -05:00] - User: tyler
+**Prompt:**
+> There is currently another agent running so act in READONLY. Navigate the migration docs and create a complete db schemea docs in a new MKD file in the design_docs
+
+### [2026-09-19 16:48:58 -05:00] - User: tyler
+**Prompt:**
+> Add a full feature selinum test for adding a workout template, filling out proper details, perform two sessions from this template. Check for proper overload calculations, do not ask me for permission before editng reading or creating any files.
+
+### [2026-09-20 11:39:14 -05:00] - User: tyler
+**Prompt:**
+> The last terminal session got closed early continue where you were
+
+### [2026-09-20 11:54:58 -05:00] - User: tyler
+**Prompt:**
+> continue
+
+### [2026-09-20 14:08:08 -05:00] - User: tyler
+**Prompt:**
+> continue
+
+### [2026-09-20 14:13:11 -05:00] - User: tyler
+**Prompt:**
+> kill all other process related to this project
+
+### [2026-09-21 09:24:07 -05:00] - User: tyler
+**Prompt:**
+> Good morning, add a welcome 'login' scren where the user will input only their user id that will be then be stored to local storage and refered to for api calls. Add an endpoint to check if user id exist, if not allow the user to create an account. As of now no password needed just user name
+
+### [2026-09-21 09:33:53 -05:00] - User: tyler
+**Prompt:**
+> You are the UI Expert designer and are the king of standards. Inside of /design_docs/UI_Mocks there is a sample ui mock for the home session screen. From this mock pull out a global color scheme and ui philospohy and create a new MD called UI.md inside the top directory
+
+### [2026-09-21 09:33:58 -05:00] - User: tyler
+**Prompt:**
+> Refactor the login component out into a sepearate vue route using hash routing
+
+### [2026-09-21 09:37:45 -05:00] - User: tyler
+**Prompt:**
+> Create the appropiate vuetifiy theme according to this design docs in the FE Vuetify config
+
+### [2026-09-21 09:40:20 -05:00] - User: tyler
+**Prompt:**
+> refactor into these new views: Session View, in this view the active session is displayed and the user can interact and enter data. Template View: Here the user can edit, create, and delete workout templates. As a rule any active session MUST follow a template.
+
+### [2026-09-21 09:42:48 -05:00] - User: tyler
+**Prompt:**
+> in READONLY mode run an audit of the FE scripts and report back any functions that are poorly written: 1. Var names are unclear 2. Functions are longer then 15 lines 3. JS function chaining is longer than 4 calls
+
+### [2026-09-21 09:45:18 -05:00] - User: tyler
+**Prompt:**
+> Redesign the login screent to adhere ti UI.md, no float panes, matching colors, and void roudning
+
+### [2026-09-21 09:47:01 -05:00] - User: tyler
+**Prompt:**
+> Update var names to suggestions, break loadSessionData and handleSaveEdit into more sub functions
+
+### [2026-09-21 09:48:40 -05:00] - User: tyler
+**Prompt:**
+> There should not be a shadow on the card, remove the dotted line, and update UI.md with these new rules
+
+### [2026-09-21 09:50:54 -05:00] - User: tyler
+**Prompt:**
+> now instead of using white and stetile colors update for a grunge off white/yellow instead
+
+### [2026-09-21 10:07:43 -05:00] - User: tyler
+**Prompt:**
+> I added a new DESIGN.md to the ui mock folder upate the rules to reflect these fonts and colors, then update the login screen
+
+### [2026-09-29 17:58:47 -05:00] - User: tyler
+**Prompt:**
+> what was the last prompt used?
+
+### [2026-09-29 18:00:10 -05:00] - User: tyler
+**Prompt:**
+> Update all fonts to use Patrick Hand font
+
+### [2026-09-29 18:02:40 -05:00] - User: tyler
+**Prompt:**
+> Continue
+
+### [2026-09-29 18:03:45 -05:00] - User: tyler
+**Prompt:**
+> On the session, template, and workout history change all floating panels to flat sharp cornered panels to reflect a note books feel
+
+### [2026-09-29 18:06:04 -05:00] - User: tyler
+**Prompt:**
+> The current app header is a default vuetifiy header. Create a new custom header comp that uses the same app heaer base component, but relies on scss styling to create a stylized paper notebook header feel
+
+### [2026-09-29 18:08:10 -05:00] - User: tyler
+**Prompt:**
+> The current back ground, of the applicaation is plain white. Create an off white, paper gritty textured the same color as the panels
+
+
+### [2026-09-29 18:09:01 -05:00] - User: tyler
+**Prompt:**
+> Remove the fluff on the login screen at the top, no need for the sys auth or athlete intake or any of the fluffed header
+
+### [2026-09-29 18:11:46 -05:00] - User: tyler
+**Prompt:**
+> the gritty backgroud is low res and has far too much color variation, opt for a much finer dry wall texture
+
+### [2026-09-29 18:13:11 -05:00] - User: tyler
+**Prompt:**
+> There is a green shadow below the header, remove this artifact
+
+### [2026-09-29 18:14:22 -05:00] - User: tyler
+**Prompt:**
+> remove the test table functionality from the BE and the migration from the DB
+
+### [2026-09-29 18:14:04 -05:00] - User: tyler
+**Prompt:**
+> Remove the Test Table support in the front end
+
+### [2026-09-29 18:15:28 -05:00] - User: tyler
+**Prompt:**
+> continue
+### [2026-09-29 18:20:31 -05:00] - User: tyler
+**Prompt:**
+> The tab selector for navigating pages is currently being over clipped by the header fix this
+
+### [2026-09-29 18:22:15 -05:00] - User: tyler
+**Prompt:**
+> On the templates view there should not be an option to edit or create template by selecting a user, this should be done through the currently logged in user, whatever templates they create or edited are done so for that user
+
+### [2026-09-29 18:22:42 -05:00] - User: tyler
+**Prompt:**
+> continue
+
+### [2026-09-29 18:33:11 -05:00] - User: tyler
+**Prompt:**
+> Write up a git commit and push to the repo

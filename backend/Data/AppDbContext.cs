@@ -1,4 +1,5 @@
 using Backend.Models;
+using Backend.Models.Templates;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Data;
@@ -9,12 +10,15 @@ public class AppDbContext : DbContext
     {
     }
 
-    public DbSet<TestItem> TestTables { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Session> Sessions { get; set; } = null!;
     public DbSet<Workout> Workouts { get; set; } = null!;
     public DbSet<Exercise> Exercises { get; set; } = null!;
     public DbSet<Set> Sets { get; set; } = null!;
+
+    public DbSet<Set_Template> SetTemplates { get; set; } = null!;
+    public DbSet<Exercise_Template> ExerciseTemplates { get; set; } = null!;
+    public DbSet<Workout_Template> WorkoutTemplates { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -46,5 +50,23 @@ public class AppDbContext : DbContext
             .WithMany(e => e.Sets)
             .HasForeignKey(s => s.ExerciseId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Workout>()
+            .HasOne(w => w.Template)
+            .WithMany()
+            .HasForeignKey(w => w.WorkoutTemplateId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Exercise>()
+            .HasOne(e => e.Template)
+            .WithMany()
+            .HasForeignKey(e => e.ExerciseTemplateId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Set>()
+            .HasOne(s => s.Template)
+            .WithMany()
+            .HasForeignKey(s => s.SetTemplateId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

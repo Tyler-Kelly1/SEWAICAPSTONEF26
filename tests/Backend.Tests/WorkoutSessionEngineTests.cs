@@ -21,7 +21,7 @@ public class WorkoutSessionEngineTests
             .Options;
 
         _context = new AppDbContext(options);
-        _engine = new WorkoutSessionEngine(_context);
+        _engine = new WorkoutSessionEngine(_context, new OverloadEngine(_context));
     }
 
     [TestCleanup]
@@ -117,5 +117,69 @@ public class WorkoutSessionEngineTests
         {
             await _engine.CreateSessionAsync(dto);
         });
+    }
+
+    [TestMethod]
+    public async Task GetGoalSetsForExerciseAsync_SeededExercise_CalculatesGoalSetsCorrectly()
+    {
+        // Arrange
+        await DbInitializer.SeedAsync(_context);
+        var dto = new ExerciseGoalRequestDto
+        {
+            ExerciseName = "Barbell Bench Press",
+            Sets = new List<CreateSetDto>
+            {
+                new CreateSetDto { Weight = 185, Reps = 8 },  // Hypertrophy (min=6, max=10): Volume Overload -> 185, 9
+                new CreateSetDto { Weight = 205, Reps = 8 },  // Failure (min=4, max=8): Ceiling Overload -> 215, 4
+                new CreateSetDto { Weight = 225, Reps = 3 }   // Failure (min=4, max=8): Underload -> 214, 4
+            }
+        };
+
+        // Act
+        var result = await _engine.GetGoalSetsForExerciseAsync(dto);
+
+        // Assert: Uses true DB previous values (185x8, 205x6, 225x4)
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Barbell Bench Press", result.ExerciseName);
+        Assert.AreEqual(3, result.GoalSets.Count);
+
+        // Set 1: DB set (185 lbs, 8 reps) with setTempHypertrophy (min=6, max=10) -> Volume overload -> 185, 9
+        Assert.AreEqual(1, result.GoalSets[0].SetNumber);
+        Assert.AreEqual(185, result.GoalSets[0].Weight);
+        Assert.AreEqual(9, result.GoalSets[0].Reps);
+
+        // Set 2: DB set (205 lbs, 6 reps) with setTemp (min=4, max=8) -> Volume overload -> 205, 7
+        Assert.AreEqual(2, result.GoalSets[1].SetNumber);
+        Assert.AreEqual(205, result.GoalSets[1].Weight);
+        Assert.AreEqual(7, result.GoalSets[1].Reps);
+
+        // Set 3: DB set (225 lbs, 4 reps) with setTemp (min=4, max=8) -> Volume overload -> 225, 5
+        Assert.AreEqual(3, result.GoalSets[2].SetNumber);
+        Assert.AreEqual(225, result.GoalSets[2].Weight);
+        Assert.AreEqual(5, result.GoalSets[2].Reps);
+    }
+
+    [TestMethod]
+    public async Task GetGoalSetsForExerciseAsync_UnseededExercise_UsesFallbackTemplate()
+    {
+        // Arrange
+        var dto = new ExerciseGoalRequestDto
+        {
+            ExerciseName = "Custom Overhead Extension",
+            Sets = new List<CreateSetDto>
+            {
+                new CreateSetDto { Weight = 50, Reps = 10 } // Default template max reps = 10 -> Ceiling -> 50*1.05=52.5 (rounded to 52), 6 reps
+            }
+        };
+
+        // Act
+        var result = await _engine.GetGoalSetsForExerciseAsync(dto);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Custom Overhead Extension", result.ExerciseName);
+        Assert.AreEqual(1, result.GoalSets.Count);
+        Assert.AreEqual(52, result.GoalSets[0].Weight);
+        Assert.AreEqual(6, result.GoalSets[0].Reps);
     }
 }

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 const props = defineProps({
   users: {
@@ -13,18 +13,25 @@ const props = defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+  currentUserId: {
+    type: String,
+    default: ''
   }
 })
 
 const emit = defineEmits(['refresh'])
 
-const selectedUserFilter = ref(null)
+const selectedUserFilter = ref(props.currentUserId || null)
+watch(() => props.currentUserId, (newUserId) => {
+  if (newUserId) selectedUserFilter.value = newUserId
+})
 
 const filteredSessions = computed(() => {
   if (!selectedUserFilter.value) {
     return props.sessions
   }
-  return props.sessions.filter(s => s.userId === selectedUserFilter.value)
+  return props.sessions.filter(session => session.userId === selectedUserFilter.value)
 })
 
 const formatDate = (isoString) => {
@@ -47,7 +54,7 @@ const formatDuration = (durationStr) => {
 </script>
 
 <template>
-  <v-card class="rounded-lg elevation-4 pa-2">
+  <v-card flat elevation="0" class="rounded-0 notebook-panel pa-2">
     <v-card-item>
       <div class="d-flex align-center justify-space-between flex-wrap ga-2">
         <div>
@@ -66,13 +73,15 @@ const formatDuration = (durationStr) => {
             color="primary"
             variant="outlined"
             mandatory="false"
+            class="rounded-0"
           >
-            <v-btn :value="null" size="small">All Users</v-btn>
+            <v-btn :value="null" size="small" class="rounded-0">All Users</v-btn>
             <v-btn
               v-for="user in users"
               :key="user.userId"
               :value="user.userId"
               size="small"
+              class="rounded-0"
             >
               {{ user.userId }}
             </v-btn>
@@ -81,6 +90,7 @@ const formatDuration = (durationStr) => {
             icon="mdi-refresh"
             variant="text"
             color="primary"
+            class="rounded-0"
             :loading="loading"
             @click="emit('refresh')"
           ></v-btn>
@@ -104,16 +114,17 @@ const formatDuration = (durationStr) => {
       </div>
 
       <!-- Workout Sessions List -->
-      <v-expansion-panels v-else variant="inset" class="my-2">
+      <v-expansion-panels v-else flat elevation="0" class="my-2">
         <v-expansion-panel
           v-for="session in filteredSessions"
           :key="session.id"
-          class="mb-3 rounded-lg"
+          class="mb-3 rounded-0 notebook-panel"
+          elevation="0"
         >
           <v-expansion-panel-title>
             <div class="d-flex align-center justify-space-between w-100 pr-4">
               <div class="d-flex align-center ga-3">
-                <v-avatar color="primary" variant="tonal" size="40">
+                <v-avatar color="primary" variant="tonal" size="40" class="rounded-0">
                   <v-icon icon="mdi-account"></v-icon>
                 </v-avatar>
                 <div>
@@ -128,11 +139,11 @@ const formatDuration = (durationStr) => {
               </div>
 
               <div class="d-flex align-center ga-2">
-                <v-chip color="secondary" variant="outlined" size="small">
+                <v-chip color="secondary" variant="outlined" size="small" class="rounded-0">
                   <v-icon icon="mdi-clock-outline" start size="x-small"></v-icon>
                   Duration: {{ formatDuration(session.duration) }}
                 </v-chip>
-                <v-chip color="info" variant="outlined" size="small">
+                <v-chip color="info" variant="outlined" size="small" class="rounded-0">
                   Session #{{ session.id }}
                 </v-chip>
               </div>
@@ -140,9 +151,9 @@ const formatDuration = (durationStr) => {
           </v-expansion-panel-title>
 
           <v-expansion-panel-text>
-            <div class="pa-2 bg-grey-darken-3 rounded-lg">
+            <div class="pa-3 notebook-subpanel rounded-0">
               <!-- Workout Details Header -->
-              <div class="d-flex align-center justify-space-between mb-3 text-caption text-grey-lighten-1">
+              <div class="d-flex align-center justify-space-between mb-3 text-caption text-on-surface-variant">
                 <div>
                   <v-icon icon="mdi-play-circle-outline" size="x-small" class="mr-1"></v-icon>
                   Start: {{ formatDate(session.executedWorkout?.startTime) }}
@@ -157,20 +168,20 @@ const formatDuration = (durationStr) => {
               <div
                 v-for="exercise in session.executedWorkout?.exercises || []"
                 :key="exercise.id"
-                class="mb-3 pa-3 bg-grey-darken-4 rounded"
+                class="mb-3 pa-3 notebook-exercise-well rounded-0"
               >
                 <div class="d-flex align-center justify-space-between mb-2">
-                  <span class="text-subtitle-2 font-weight-bold text-light-blue-lighten-3">
+                  <span class="text-subtitle-2 font-weight-bold text-primary">
                     <v-icon icon="mdi-weight-lifter" size="small" class="mr-1"></v-icon>
                     {{ exercise.exerciseName }}
                   </span>
-                  <v-chip size="x-small" color="secondary">
+                  <v-chip size="x-small" color="secondary" class="rounded-0">
                     {{ exercise.sets?.length || 0 }} Sets
                   </v-chip>
                 </div>
 
                 <!-- Sets Table -->
-                <v-table density="compact" bg-color="transparent" class="rounded">
+                <v-table density="compact" bg-color="transparent" class="rounded-0 notebook-table">
                   <thead>
                     <tr>
                       <th class="text-left text-caption">Set #</th>
@@ -196,4 +207,64 @@ const formatDuration = (durationStr) => {
 </template>
 
 <style scoped>
+*, *::before, *::after {
+  border-radius: 0 !important;
+}
+
+.notebook-panel {
+  background-color: #f6ebd0 !important;
+  border: 2px solid #1f1d18 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+:deep(.v-expansion-panel) {
+  background-color: #f6ebd0 !important;
+  border: 2px solid #1f1d18 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+:deep(.v-expansion-panel-title) {
+  background-color: #fbf2d3 !important;
+  border-radius: 0 !important;
+  border-bottom: 1.5px solid #1f1d18 !important;
+  box-shadow: none !important;
+}
+
+:deep(.v-expansion-panel-text__wrapper) {
+  background-color: #f6ebd0 !important;
+  padding: 12px !important;
+}
+
+.notebook-subpanel {
+  background-color: #f4e7c5 !important;
+  border: 1.5px solid #1f1d18 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.notebook-exercise-well {
+  background-color: #fcf5dc !important;
+  border: 1px solid #1f1d18 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.notebook-table {
+  border: 1px solid #1f1d18 !important;
+  border-radius: 0 !important;
+  background-color: #fff8ef !important;
+}
+
+.notebook-table th {
+  background-color: #f0e1b9 !important;
+  color: #1f1d18 !important;
+  border-bottom: 1.5px solid #1f1d18 !important;
+}
+
+.notebook-table td {
+  border-bottom: 1px solid #cdbe8d !important;
+  color: #1f1d18 !important;
+}
 </style>

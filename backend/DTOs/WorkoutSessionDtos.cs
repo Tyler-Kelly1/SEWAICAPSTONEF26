@@ -2,11 +2,38 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Backend.DTOs;
 
+public class SetTemplateDto
+{
+    public int Id { get; set; }
+    public bool Failure_Set { get; set; }
+    public int Max_Reps { get; set; }
+    public int Min_Reps { get; set; }
+}
+
+public class ExerciseTemplateDto
+{
+    public int Id { get; set; }
+    public string Exercise_Name { get; set; } = string.Empty;
+    public int Max_Set { get; set; }
+    public int Min_Set { get; set; }
+    public decimal Weight_Step { get; set; }
+    public int Volume_Step { get; set; }
+    public List<SetTemplateDto> SetTemplates { get; set; } = new();
+}
+
+public class WorkoutTemplateDto
+{
+    public int Id { get; set; }
+    public string Workout_Name { get; set; } = string.Empty;
+    public List<ExerciseTemplateDto> ExerciseTemplates { get; set; } = new();
+}
+
 public class SetDto
 {
     public int Id { get; set; }
     public int Weight { get; set; }
     public int Reps { get; set; }
+    public SetTemplateDto? Template { get; set; }
 }
 
 public class ExerciseDto
@@ -14,6 +41,7 @@ public class ExerciseDto
     public int Id { get; set; }
     public string ExerciseName { get; set; } = string.Empty;
     public List<SetDto> Sets { get; set; } = new();
+    public ExerciseTemplateDto? Template { get; set; }
 }
 
 public class WorkoutDto
@@ -23,6 +51,7 @@ public class WorkoutDto
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public List<ExerciseDto> Exercises { get; set; } = new();
+    public WorkoutTemplateDto? Template { get; set; }
 }
 
 public class SessionDto
@@ -51,6 +80,8 @@ public class CreateSetDto
 
 public class CreateExerciseDto
 {
+    public int? ExerciseTemplateId { get; set; }
+
     [Required(ErrorMessage = "Exercise name is required.")]
     [StringLength(100, ErrorMessage = "Exercise name cannot exceed 100 characters.")]
     public string ExerciseName { get; set; } = string.Empty;
@@ -80,3 +111,30 @@ public class CreateSessionDto
     [MinLength(1, ErrorMessage = "At least one exercise is required for a workout.")]
     public List<CreateExerciseDto> Exercises { get; set; } = new();
 }
+
+public class ExerciseGoalRequestDto
+{
+    public string? UserId { get; set; }
+    public int? ExerciseTemplateId { get; set; }
+
+    [Required(ErrorMessage = "Exercise name is required.")]
+    [StringLength(100, ErrorMessage = "Exercise name cannot exceed 100 characters.")]
+    public string ExerciseName { get; set; } = string.Empty;
+
+    public List<CreateSetDto>? Sets { get; set; } = new();
+}
+
+public class GoalSetDto
+{
+    public int SetNumber { get; set; }
+    public int Weight { get; set; }
+    public int Reps { get; set; }
+}
+
+public class ExerciseGoalResponseDto
+{
+    public string ExerciseName { get; set; } = string.Empty;
+    public int? ExerciseTemplateId { get; set; }
+    public List<GoalSetDto> GoalSets { get; set; } = new();
+}
+

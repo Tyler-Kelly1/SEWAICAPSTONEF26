@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Scratchpad // Pencil Log</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-dim": "#dbdad6",
+            "error-container": "#ffdad6",
+            "secondary-fixed": "#e3e1ec",
+            "on-secondary-container": "#63646c",
+            "inverse-on-surface": "#f2f1ed",
+            "error": "#ba1a1a",
+            "on-tertiary-container": "#8d8e92",
+            "on-primary-fixed": "#1b1b1e",
+            "on-surface": "#1b1c1a",
+            "on-tertiary": "#ffffff",
+            "primary": "#121315",
+            "on-background": "#1b1c1a",
+            "inverse-primary": "#c8c6c9",
+            "primary-fixed-dim": "#c8c6c9",
+            "on-surface-variant": "#46464b",
+            "on-tertiary-fixed-variant": "#45474a",
+            "tertiary": "#111316",
+            "secondary-container": "#e3e1ec",
+            "secondary-fixed-dim": "#c6c5cf",
+            "surface-bright": "#faf9f5",
+            "background": "#faf9f5",
+            "primary-fixed": "#e4e1e5",
+            "primary-container": "#27272a",
+            "surface-container-highest": "#e3e2df",
+            "on-error": "#ffffff",
+            "on-secondary": "#ffffff",
+            "surface-container-low": "#f4f4f0",
+            "tertiary-container": "#25272a",
+            "on-tertiary-fixed": "#1a1c1f",
+            "surface-container-lowest": "#ffffff",
+            "on-secondary-fixed": "#1a1b22",
+            "surface-variant": "#e3e2df",
+            "surface-container": "#efeeea",
+            "surface-container-high": "#e9e8e4",
+            "on-primary-fixed-variant": "#47464a",
+            "surface-tint": "#5f5e61",
+            "on-primary-container": "#8f8e91",
+            "outline-variant": "#c7c6cb",
+            "on-error-container": "#93000a",
+            "on-primary": "#ffffff",
+            "tertiary-fixed": "#e2e2e6",
+            "secondary": "#5d5e66",
+            "on-secondary-fixed-variant": "#46464e",
+            "tertiary-fixed-dim": "#c6c6ca",
+            "inverse-surface": "#2f312e",
+            "outline": "#77767b",
+            "surface": "#faf9f5"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-xl": "2.5rem",
+            "space-lg": "1.5rem",
+            "gutter": "1.25rem",
+            "margin": "2rem",
+            "space-xs": "0.25rem",
+            "gutter-mobile": "0.75rem",
+            "space-md": "1rem",
+            "space-sm": "0.5rem",
+            "margin-mobile": "1rem"
+          },
+          "fontFamily": {
+            "headline-xl-mobile": ["Patrick Hand", "cursive", "sans-serif"],
+            "headline-lg-mobile": ["Patrick Hand", "cursive", "sans-serif"],
+            "headline-xl": ["Patrick Hand", "cursive", "sans-serif"],
+            "body-md": ["Patrick Hand", "cursive", "sans-serif"],
+            "body-sm": ["Patrick Hand", "cursive", "sans-serif"],
+            "headline-lg": ["Patrick Hand", "cursive", "sans-serif"],
+            "label-sm": ["Patrick Hand", "cursive", "sans-serif"],
+            "body-lg": ["Patrick Hand", "cursive", "sans-serif"],
+            "label-md": ["Patrick Hand", "cursive", "sans-serif"],
+            "headline-md": ["Patrick Hand", "cursive", "sans-serif"]
+          },
+          "fontSize": {
+            "headline-xl-mobile": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "headline-lg-mobile": ["22px", { "lineHeight": "30px", "fontWeight": "600" }],
+            "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-md": ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "headline-lg": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "400" }],
+            "body-lg": ["17px", { "lineHeight": "26px", "fontWeight": "400" }],
+            "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      line-height: 1;
+    }
+
+    /* Hand-drawn Sketchbook Textures & Imperfections */
+    .pencil-hatch {
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(39, 39, 42, 0.12),
+        rgba(39, 39, 42, 0.12) 2px,
+        transparent 2px,
+        transparent 6px
+      );
+    }
+    .pencil-hatch-dense {
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(39, 39, 42, 0.25),
+        rgba(39, 39, 42, 0.25) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+    }
+    .sketch-border {
+      border: 2px solid #27272a;
+      border-radius: 4px 6px 3px 7px / 6px 3px 5px 4px;
+    }
+    .sketch-border-sm {
+      border: 1.5px solid #27272a;
+      border-radius: 3px 4px 2px 5px / 4px 2px 4px 3px;
+    }
+    .wireframe-box {
+      position: relative;
+      background: #faf9f5;
+    }
+    .wireframe-box::before,
+    .wireframe-box::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+    }
+    .wireframe-box::before {
+      background: linear-gradient(to top right, transparent calc(50% - 1px), #71717a calc(50% - 0.5px), #71717a calc(50% + 0.5px), transparent calc(50% + 1px));
+    }
+    .wireframe-box::after {
+      background: linear-gradient(to bottom right, transparent calc(50% - 1px), #71717a calc(50% - 0.5px), #71717a calc(50% + 0.5px), transparent calc(50% + 1px));
+    }
+    .tape-strip {
+      background: rgba(227, 226, 223, 0.85);
+      box-shadow: 1px 1px 0px rgba(39, 39, 42, 0.2);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen pb-32">
+<!-- TOP APP BAR (Shared Component JSON compliant) -->
+<header class="bg-surface dark:bg-primary text-primary dark:text-inverse-primary border-b-2 border-primary dark:border-outline-variant shadow-[0px_2px_0px_0px_#27272a] dark:shadow-[0px_2px_0px_0px_#c7c6cb] sticky top-0 z-40">
+<div class="flex justify-between items-center w-full px-gutter-mobile py-space-sm max-w-xl mx-auto">
+<div class="flex items-center gap-space-xs">
+<button class="hover:bg-surface-container dark:hover:bg-primary-container p-1 rounded active:translate-x-0.5 active:translate-y-0.5 transition-transform flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[24px]">draw</span>
+</button>
+<span class="font-headline-lg-mobile text-headline-lg-mobile font-bold tracking-wider text-primary dark:text-inverse-primary">SCRATCHPAD</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant ml-1 font-bold">// LOG #42</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="sketch-border-sm bg-surface-container-low px-2 py-0.5 flex items-center gap-1 shadow-[1px_1px_0px_0px_#27272a]">
+<span class="font-label-sm text-label-sm text-primary font-bold">⏱ 42:15</span>
+</div>
+<button class="hover:bg-surface-container dark:hover:bg-primary-container p-1 rounded active:translate-x-0.5 active:translate-y-0.5 transition-transform">
+<span class="material-symbols-outlined text-primary">more_vert</span>
+</button>
+</div>
+</div>
+</header>
+<!-- MAIN SKETCHBOOK CANVAS -->
+<main class="max-w-xl mx-auto px-gutter-mobile py-space-md flex flex-col gap-space-md">
+<!-- SUBHEADER / STATUS TAPE -->
+<div class="flex items-center justify-between border-b border-dashed border-outline pb-2">
+<div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+<span>TODAY: OCT 24 // UPPER PUSH + SQUAT</span>
+</div>
+<div class="pencil-hatch px-2 py-0.5 sketch-border-sm text-primary font-label-sm text-label-sm font-bold">
+        WEEK 6 • PEAK
+      </div>
+</div>
+<!-- QUICK SCRIBBLE / LOGGING COMMAND BAR -->
+<section class="sketch-border bg-surface-container-low p-space-sm shadow-[2px_2px_0px_0px_#27272a] relative">
+<div class="flex items-center gap-2 mb-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-bold uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+          RAPID NOTE ENTRY
+        </span>
+<span class="h-px bg-outline-variant flex-1"></span>
+</div>
+<div class="flex items-center gap-2">
+<div class="sketch-border-sm bg-surface-container-lowest flex-1 px-3 py-1.5 flex items-center gap-2 shadow-[1px_1px_0px_0px_#27272a]">
+<span class="font-label-sm text-label-sm text-outline font-bold">✏️</span>
+<input class="w-full bg-transparent border-none p-0 font-label-md text-label-md text-primary placeholder-outline focus:ring-0" placeholder="3x8 Back Squat @ 120kg RPE 8..." type="text" value="3x8 Back Squat @ 120kg RPE 8"/>
+</div>
+<button class="sketch-border-sm bg-primary text-surface-bright font-label-md text-label-md px-3 py-1.5 shadow-[2px_2px_0px_0px_#71717a] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-transform whitespace-nowrap font-bold">
+          [ + ADD ]
+        </button>
+</div>
+<!-- Quick doodle chips -->
+<div class="flex flex-wrap gap-1.5 mt-2.5">
+<button class="sketch-border-sm pencil-hatch px-2 py-0.5 font-label-sm text-label-sm text-primary hover:bg-surface-container active:scale-95 transition-transform">
+          + SET
+        </button>
+<button class="sketch-border-sm pencil-hatch px-2 py-0.5 font-label-sm text-label-sm text-primary hover:bg-surface-container active:scale-95 transition-transform">
+          + DROPSET
+        </button>
+<button class="sketch-border-sm pencil-hatch px-2 py-0.5 font-label-sm text-label-sm text-primary hover:bg-surface-container active:scale-95 transition-transform">
+          + REST 2M
+        </button>
+<button class="sketch-border-sm bg-surface-container-highest px-2 py-0.5 font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container active:scale-95 transition-transform">
+          ⚡ RPE 9.5
+        </button>
+</div>
+</section>
+<!-- EXERCISE 01: BARBELL BACK SQUAT -->
+<section class="border-t-2 border-b-2 border-primary pt-2 pb-3">
+<div class="pencil-hatch px-2 py-1.5 border-b-2 border-primary flex justify-between items-center mb-0">
+<div class="flex items-baseline gap-2">
+<span class="font-label-md text-label-md text-primary font-bold tracking-wider">[01]</span>
+<h2 class="font-headline-md text-headline-md text-primary uppercase tracking-tight">BARBELL BACK SQUAT</h2>
+</div>
+<div class="sketch-border-sm bg-surface-bright px-2 py-0.5 shadow-[1px_1px_0px_0px_#27272a] transform -rotate-1">
+<span class="font-label-sm text-label-sm text-primary font-bold">★ PR!</span>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-label-sm text-label-sm border-collapse">
+<thead>
+<tr class="border-b border-primary text-on-surface-variant font-label-sm bg-surface-container-low/40">
+<th class="py-1.5 px-2 border-r border-outline-variant/60 w-16">SET</th>
+<th class="py-1.5 px-2 border-r border-outline-variant/60">WEIGHT</th>
+<th class="py-1.5 px-2 border-r border-outline-variant/60">REPS</th>
+<th class="py-1.5 px-2 border-r border-outline-variant/60">RPE</th>
+<th class="py-1.5 px-2 text-right">DONE</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/60 font-label-md text-label-md">
+<tr class="border-b border-outline-variant/40 hover:bg-surface-container-low/30">
+<td class="py-2 px-2 border-r border-outline-variant/60 text-on-surface-variant font-mono">01 (w)</td>
+<td class="py-2 px-2 border-r border-outline-variant/60 font-mono">60 kg</td>
+<td class="py-2 px-2 border-r border-outline-variant/60 font-mono">10</td>
+<td class="py-2 px-2 border-r border-outline-variant/60 text-on-surface-variant font-mono">@ 5</td>
+<td class="py-2 px-2 text-right">
+<div class="inline-flex items-center justify-center w-5 h-5 sketch-border-sm bg-primary text-surface-bright text-xs">
+              ✓
+            </div>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/40 hover:bg-surface-container-low/30">
+<td class="py-2 px-2 border-r border-outline-variant/60 text-on-surface-variant font-mono">02 (w)</td>
+<td class="py-2 px-2 border-r border-outline-variant/60 font-mono">100 kg</td>
+<td class="py-2 px-2 border-r border-outline-variant/60 font-mono">5</td>
+<td class="py-2 px-2 border-r border-outline-variant/60 text-on-surface-variant font-mono">@ 7</td>
+<td class="py-2 px-2 text-right">
+<div class="inline-flex items-center justify-center w-5 h-5 sketch-border-sm bg-primary text-surface-bright text-xs">
+              ✓
+            </div>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/40 bg-surface-container-low/20 hover:bg-surface-container-low/40">
+<td class="py-2 px-2 border-r border-outline-variant/60 font-bold font-mono text-primary">03</td>
+<td class="py-2 px-2 border-r border-outline-variant/60 font-bold font-mono text-primary">125 kg</td>
+<td class="py-2 px-2 border-r border-outline-variant/60 font-bold font-mono text-primary">8</td>
+<td class="py-2 px-2 border-r border-outline-variant/60 font-bold font-mono text-primary">@ 8.5</td>
+<td class="py-2 px-2 text-right">
+<div class="inline-flex items-center justify-center w-5 h-5 sketch-border-sm bg-primary text-surface-bright text-xs">
+              ✓
+            </div>
+</td>
+</tr>
+<tr class="pencil-hatch/40 hover:bg-surface-container-low/50">
+<td class="py-2 px-2 border-r border-outline-variant/60 font-bold font-mono text-primary">04</td>
+<td class="py-2 px-2 border-r border-outline-variant/60 font-bold font-mono text-primary">125 kg</td>
+<td class="py-2 px-2 border-r border-outline-variant/60 font-bold font-mono text-primary">8</td>
+<td class="py-2 px-2 border-r border-outline-variant/60 font-bold font-mono text-primary">@ 9</td>
+<td class="py-2 px-2 text-right">
+<div class="inline-flex items-center justify-center w-5 h-5 sketch-border-sm bg-surface-bright border-2 border-primary text-xs">
+<span class="text-primary font-bold">✓</span>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="mt-2 pt-1.5 border-t border-dashed border-outline flex items-start gap-1.5 px-2">
+<span class="material-symbols-outlined text-[16px] text-outline mt-0.5">sticky_note_2</span>
+<p class="font-label-sm text-label-sm italic text-on-surface-variant">
+      "Felt deep in the hole, good knee tracking. Belt on set 3 &amp; 4."
+    </p>
+</div>
+</section>
+<!-- EXERCISE 02: INCLINE DUMBBELL PRESS -->
+<section class="border-t-2 border-b-2 border-primary pt-2 pb-3">
+<div class="pencil-hatch px-2 py-1.5 border-b-2 border-primary flex justify-between items-center mb-0">
+<div class="flex items-baseline gap-2">
+<span class="font-label-md text-label-md text-primary font-bold tracking-wider">[02]</span>
+<h2 class="font-headline-md text-headline-md text-primary uppercase tracking-tight">INCLINE DUMBBELL PRESS</h2>
+</div>
+<div class="sketch-border-sm bg-surface-container-high px-2 py-0.5 font-label-sm text-label-sm font-bold">
+      30° BENCH
+    </div>
+</div>
+<div class="grid grid-cols-12 border-b border-outline-variant/60">
+<div class="col-span-3 border-r border-outline-variant/60 p-2 flex flex-col justify-between wireframe-box bg-surface-container-low">
+<span class="font-label-sm text-[9px] text-outline font-bold leading-none uppercase">ILLUST // X</span>
+<span class="font-label-sm text-[9px] text-outline text-right leading-none uppercase">UPPER PEC</span>
+</div>
+<div class="col-span-9 divide-y divide-outline-variant/60">
+<div class="flex items-center justify-between py-2 px-3 hover:bg-surface-container-low/30">
+<div class="font-label-md text-label-md text-primary font-bold font-mono">SET 1: 32kg × 10</div>
+<div class="flex gap-1 items-center">
+<span class="font-label-sm text-label-sm text-outline mr-1 font-mono">RPE 7</span>
+<span class="w-3 h-3 rounded-full border border-primary pencil-hatch-dense inline-block"></span>
+<span class="w-3 h-3 rounded-full border border-primary pencil-hatch-dense inline-block"></span>
+<span class="w-3 h-3 rounded-full border border-primary bg-surface-bright inline-block"></span>
+</div>
+</div>
+<div class="flex items-center justify-between py-2 px-3 hover:bg-surface-container-low/30">
+<div class="font-label-md text-label-md text-primary font-bold font-mono">SET 2: 36kg × 8</div>
+<div class="flex gap-1 items-center">
+<span class="font-label-sm text-label-sm text-outline mr-1 font-mono">RPE 8</span>
+<span class="w-3 h-3 rounded-full border border-primary pencil-hatch-dense inline-block"></span>
+<span class="w-3 h-3 rounded-full border border-primary pencil-hatch-dense inline-block"></span>
+<span class="w-3 h-3 rounded-full border border-primary pencil-hatch-dense inline-block"></span>
+</div>
+</div>
+<div class="flex items-center justify-between py-2 px-3 bg-surface-container-low/40 hover:bg-surface-container-low/60">
+<div class="font-label-md text-label-md text-primary font-bold font-mono">SET 3: 40kg × 6</div>
+<div class="flex gap-1 items-center">
+<span class="font-label-sm text-label-sm text-primary font-bold mr-1 font-mono">RPE 9.5</span>
+<span class="w-3.5 h-3.5 rounded-full border-2 border-primary bg-primary inline-block"></span>
+<span class="w-3.5 h-3.5 rounded-full border-2 border-primary bg-primary inline-block"></span>
+<span class="w-3.5 h-3.5 rounded-full border-2 border-primary pencil-hatch-dense inline-block"></span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- EXERCISE 03: BULGARIAN SPLIT SQUAT -->
+<section class="border-t-2 border-b-2 border-primary pt-2 pb-3">
+<div class="pencil-hatch px-2 py-1.5 border-b-2 border-primary flex justify-between items-center mb-0">
+<div class="flex items-baseline gap-2">
+<span class="font-label-md text-label-md text-primary font-bold tracking-wider">[03]</span>
+<h2 class="font-headline-md text-headline-md text-primary uppercase tracking-tight">BULGARIAN SPLIT SQUAT</h2>
+</div>
+<div class="sketch-border-sm pencil-hatch px-2 py-0.5 font-label-sm text-label-sm text-primary font-bold">
+      TEMPO: 3-1-1
+    </div>
+</div>
+<div class="grid grid-cols-2 divide-x divide-outline-variant/60 border-b border-outline-variant/60">
+<!-- LEFT LEG -->
+<div class="p-2.5">
+<div class="flex justify-between items-center mb-1.5 pb-1 border-b border-dashed border-outline-variant">
+<span class="font-label-md text-label-md font-bold text-primary">LEFT LEG</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">24kg DBs</span>
+</div>
+<div class="flex items-center justify-center gap-1 font-label-md text-label-md font-bold tracking-widest text-primary py-1">
+<span>||||</span>
+<span class="transform -rotate-45 -ml-2 text-outline">/</span>
+<span class="ml-2">||||</span>
+<span class="transform -rotate-45 -ml-2 text-outline">/</span>
+<span class="text-xs text-outline font-normal ml-1 font-mono">(10 reps)</span>
+</div>
+</div>
+<!-- RIGHT LEG -->
+<div class="p-2.5">
+<div class="flex justify-between items-center mb-1.5 pb-1 border-b border-dashed border-outline-variant">
+<span class="font-label-md text-label-md font-bold text-primary">RIGHT LEG</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">24kg DBs</span>
+</div>
+<div class="flex items-center justify-center gap-1 font-label-md text-label-md font-bold tracking-widest text-primary py-1">
+<span>||||</span>
+<span class="transform -rotate-45 -ml-2 text-outline">/</span>
+<span class="ml-2">||||</span>
+<span class="transform -rotate-45 -ml-2 text-outline">/</span>
+<span class="text-xs text-outline font-normal ml-1 font-mono">(10 reps)</span>
+</div>
+</div>
+</div>
+</section>
+<!-- SKETCHED STICKY NOTE / SCRAP PAPER (Taped to page) -->
+<div class="border-t-2 border-b-2 border-dashed border-primary py-2 px-1 mb-4">
+<div class="flex items-center gap-2 mb-1.5">
+<span class="material-symbols-outlined text-[18px] text-primary">draw</span>
+<span class="font-label-sm text-label-sm font-bold text-primary uppercase tracking-wider">POST-WORKOUT MOBILITY RECAP</span>
+<span class="h-px bg-outline-variant/60 flex-1"></span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface font-mono pl-4 leading-relaxed">
+    • Foam roll quads &amp; adductors (2 min/side)<br/>
+    • Couch stretch for hip flexor opening (90s hold)<br/>
+    • Hydrate: 1L water + electro pack
+  </p>
+</div>
+</main>
+<!-- FLOATING REST TIMER BAR (Docked above bottom nav) -->
+<aside class="fixed bottom-14 left-0 w-full z-40 px-gutter-mobile pointer-events-none">
+<div class="max-w-xl mx-auto pointer-events-auto">
+<div class="sketch-border bg-surface-bright text-primary p-2 shadow-[0px_-2px_0px_0px_#27272a,2px_2px_0px_0px_#27272a] flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-error animate-pulse"></div>
+<div>
+<div class="font-label-sm text-label-sm text-on-surface-variant leading-tight">ACTIVE REST COUNTDOWN</div>
+<div class="font-headline-md text-headline-md font-bold text-primary tracking-wider leading-none">01:30</div>
+</div>
+</div>
+<div class="flex items-center gap-1.5">
+<button class="sketch-border-sm pencil-hatch bg-surface-container px-2.5 py-1 font-label-sm text-label-sm font-bold text-primary hover:bg-surface-container-high active:translate-x-0.5 active:translate-y-0.5 transition-transform">
+            +30s
+          </button>
+<button class="sketch-border-sm bg-primary text-surface-bright px-3 py-1 font-label-sm text-label-sm font-bold active:translate-x-0.5 active:translate-y-0.5 transition-transform">
+            SKIP &gt;&gt;
+          </button>
+</div>
+</div>
+</div>
+</aside>
+<!-- BOTTOM NAVIGATION BAR (Shared Component JSON compliant) -->
+<!-- Contextual State: Scratchpad is active destination -->
+<nav class="bg-surface dark:bg-primary text-primary dark:text-inverse-primary border-t-2 border-primary dark:border-outline-variant shadow-[0px_-2px_0px_0px_#27272a] dark:shadow-[0px_-2px_0px_0px_#c7c6cb] fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-gutter-mobile py-space-xs">
+<!-- Item 1: Scratchpad (ACTIVE) -->
+<a class="flex flex-col items-center justify-center bg-surface-container-highest dark:bg-primary-container text-primary dark:text-inverse-primary border border-primary dark:border-outline-variant px-space-sm py-space-xs rounded shadow-[1px_1px_0px_0px_#27272a] dark:shadow-[1px_1px_0px_0px_#c7c6cb] active:translate-x-0.5 active:translate-y-0.5 transition-transform" href="#scratchpad">
+<span class="material-symbols-outlined text-[20px]">edit_note</span>
+<span class="font-label-sm text-label-sm">Scratchpad</span>
+</a>
+<!-- Item 2: Log -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-space-sm py-space-xs hover:bg-surface-container dark:hover:bg-primary-container active:translate-x-0.5 active:translate-y-0.5 transition-transform" href="#log">
+<span class="material-symbols-outlined text-[20px]">history_edu</span>
+<span class="font-label-sm text-label-sm">Log</span>
+</a>
+<!-- Item 3: Routines -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-space-sm py-space-xs hover:bg-surface-container dark:hover:bg-primary-container active:translate-x-0.5 active:translate-y-0.5 transition-transform" href="#routines">
+<span class="material-symbols-outlined text-[20px]">fitness_center</span>
+<span class="font-label-sm text-label-sm">Routines</span>
+</a>
+<!-- Item 4: Settings -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-space-sm py-space-xs hover:bg-surface-container dark:hover:bg-primary-container active:translate-x-0.5 active:translate-y-0.5 transition-transform" href="#settings">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="font-label-sm text-label-sm">Settings</span>
+</a>
+</nav>
+</body></html>

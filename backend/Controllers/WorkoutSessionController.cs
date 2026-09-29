@@ -53,4 +53,18 @@ public class WorkoutSessionController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpPost("goal-sets")]
+    public async Task<ActionResult<ExerciseGoalResponseDto>> GetGoalSets([FromBody] ExerciseGoalRequestDto dto)
+    {
+        try
+        {
+            var result = await _engine.GetGoalSetsForExerciseAsync(dto);
+            return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 }
