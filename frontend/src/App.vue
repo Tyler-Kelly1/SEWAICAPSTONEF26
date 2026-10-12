@@ -7,6 +7,7 @@ import TemplateView from './views/TemplateView.vue'
 import LoginView from './views/LoginView.vue'
 import NotebookHeader from './components/NotebookHeader.vue'
 import { useHashRouter } from './router/index.js'
+import DashboardView from './views/DashboardView.vue'
 
 const router = useHashRouter()
 const activeTab = ref('start_session')
@@ -114,6 +115,8 @@ watch(() => router.currentRoute.value, (newRoute) => {
     activeTab.value = 'workout_templates'
   } else if (newRoute === '/history') {
     activeTab.value = 'workouts'
+    } else if (newRoute === '/dashboard') {
+  activeTab.value = 'dashboard'
   }
 }, { immediate: true })
 
@@ -125,7 +128,10 @@ watch(activeTab, (tab) => {
     router.navigateTo('/templates')
   } else if (tab === 'workouts' && router.currentRoute.value !== '/history') {
     router.navigateTo('/history')
-  }
+} else if (tab === 'dashboard' && router.currentRoute.value !== '/dashboard') {
+  router.navigateTo('/dashboard')
+}
+ 
 })
 
 const fetchWorkoutData = async () => {
@@ -253,38 +259,40 @@ onMounted(() => {
               <v-icon icon="mdi-history" start></v-icon>
               Workout History
             </v-tab>
+            <v-tab value="dashboard" data-testid="tab-dashboard">
+                <v-icon icon="mdi-chart-box-outline" start></v-icon>
+                Dashboard
+            </v-tab>
           </v-tabs>
 
           <!-- Tab Windows -->
           <v-window v-model="activeTab">
-            <!-- View 1: Session View (Active Session) -->
-            <v-window-item value="start_session">
-              <SessionView
-                :current-user-id="currentUserId"
-                :workout-templates="workoutTemplates"
-                :exercise-templates="templates"
-                @session-saved="handleSessionSaved"
-              />
-            </v-window-item>
+              <!-- View 1: Session View (Active Session) -->
+              <v-window-item value="start_session">
+                  <SessionView :current-user-id="currentUserId"
+                               :workout-templates="workoutTemplates"
+                               :exercise-templates="templates"
+                               @session-saved="handleSessionSaved" />
+              </v-window-item>
 
-            <!-- View 2: Template View (Edit, Create, Delete Templates) -->
-            <v-window-item value="workout_templates">
-              <TemplateView
-                :current-user-id="currentUserId"
-                @templates-updated="handleTemplatesUpdated"
-              />
-            </v-window-item>
+              <!-- View 2: Template View (Edit, Create, Delete Templates) -->
+              <v-window-item value="workout_templates">
+                  <TemplateView :current-user-id="currentUserId"
+                                @templates-updated="handleTemplatesUpdated" />
+              </v-window-item>
 
-            <!-- View 3: Workout History -->
-            <v-window-item value="workouts">
-              <WorkoutSessionList
-                :users="users"
-                :sessions="sessions"
-                :loading="fetchingWorkouts"
-                :current-user-id="currentUserId"
-                @refresh="fetchWorkoutData"
-              />
-            </v-window-item>
+              <!-- View 3: Workout History -->
+              <v-window-item value="workouts">
+                  <WorkoutSessionList :users="users"
+                                      :sessions="sessions"
+                                      :loading="fetchingWorkouts"
+                                      :current-user-id="currentUserId"
+                                      @refresh="fetchWorkoutData" />
+              </v-window-item>
+
+              <v-window-item value="dashboard">
+                  <DashboardView :sessions="sessions" />
+              </v-window-item>
           </v-window>
         </template>
 
