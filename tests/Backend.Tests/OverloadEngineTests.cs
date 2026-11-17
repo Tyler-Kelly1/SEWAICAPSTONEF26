@@ -111,7 +111,7 @@ public class OverloadEngineTests
     public async Task GetPreviousSetValueAsync_ExistingSessionInDb_ReturnsCorrectPreviousSetValue()
     {
         // Arrange: seed DB with user, session, workout, exercise, set
-        var user = new User { UserId = "user1" };
+        var user = new ApplicationUser { Id = "user1", UserName = "user1", Email = "user1@example.com" };
         var workout = new Workout
         {
             WorkoutName = "Chest Day",
@@ -157,5 +157,88 @@ public class OverloadEngineTests
         Assert.AreEqual(8, set1.Reps);
 
         Assert.IsNull(set2);
+    }
+
+    [TestMethod]
+    public async Task GetPreviousSetValueAsync_NullOrEmptyUserId_ReturnsNull()
+    {
+        // Arrange
+        var user = new ApplicationUser { Id = "user1", UserName = "user1" };
+        var workout = new Workout
+        {
+            WorkoutName = "Chest Day",
+            StartTime = DateTime.UtcNow.AddDays(-1),
+            EndTime = DateTime.UtcNow,
+            Exercises = new List<Exercise>
+            {
+                new Exercise
+                {
+                    ExerciseName = "Bench Press",
+                    Sets = new List<Set> { new Set { Weight = 225, Reps = 10 } }
+                }
+            }
+        };
+        var session = new Session { UserId = "user1", ExecutedWorkout = workout };
+        _context.Users.Add(user);
+        _context.Sessions.Add(session);
+        await _context.SaveChangesAsync();
+
+        // Act: call with null and empty userId
+        var setWithNull = await _engine.GetPreviousSetValueAsync(null, "Bench Press", 0, null);
+        var setWithEmpty = await _engine.GetPreviousSetValueAsync(null, "Bench Press", 0, "");
+
+        // Assert: both MUST return null to prevent cross-user leakage
+        Assert.IsNull(setWithNull);
+        Assert.IsNull(setWithEmpty);
+    }
+
+    [TestMethod]
+    public async Task GetPreviousSetValueAsync_MultipleUsers_DoesNotCrossContaminate()
+    {
+        // Arrange: User 1 benched 300 lbs, User 2 benched 150 lbs
+        var user1 = new ApplicationUser { Id = "user1", UserName = "user1" };
+        var user2 = new ApplicationUser { Id = "user2", UserName = "user2" };
+        var workout1 = new Workout
+        {
+            WorkoutName = "User 1 Workout",
+            StartTime = DateTime.UtcNow.AddDays(-1),
+            EndTime = DateTime.UtcNow,
+            Exercises = new List<Exercise>
+            {
+                new Exercise
+                {
+                    ExerciseName = "Bench Press",
+                    Sets = new List<Set> { new Set { Weight = 300, Reps = 10 } }
+                }
+            }
+        };
+        var workout2 = new Workout
+        {
+            WorkoutName = "User 2 Workout",
+            StartTime = DateTime.UtcNow.AddMinutes(-10), // More recent!
+            EndTime = DateTime.UtcNow,
+            Exercises = new List<Exercise>
+            {
+                new Exercise
+                {
+                    ExerciseName = "Bench Press",
+                    Sets = new List<Set> { new Set { Weight = 150, Reps = 10 } }
+                }
+            }
+        };
+
+        _context.Users.AddRange(user1, user2);
+        _context.Sessions.AddRange(
+            new Session { UserId = "user1", ExecutedWorkout = workout1 },
+            new Session { UserId = "user2", ExecutedWorkout = workout2 }
+        );
+        await _context.SaveChangesAsync();
+
+        // Act: query for User 1
+        var user1Set = await _engine.GetPreviousSetValueAsync(null, "Bench Press", 0, "user1");
+
+        // Assert: Must return User 1's 300 lbs, NOT User 2's more recent 150 lbs
+        Assert.IsNotNull(user1Set);
+        Assert.AreEqual(300, user1Set.Weight);
     }
 }

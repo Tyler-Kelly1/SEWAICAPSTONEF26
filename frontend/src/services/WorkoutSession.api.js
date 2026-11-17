@@ -10,7 +10,9 @@ const getStoredUserId = (userId = null) => {
 
 const WorkoutSessionApi = {
   async getUsers() {
-    const response = await fetch(`${API_BASE_URL}/users`)
+    const response = await fetch(`${API_BASE_URL}/users`, {
+      credentials: 'include'
+    })
     if (!response.ok) {
       const errorText = await response.text()
       throw new Error(errorText || `Failed to fetch users (HTTP ${response.status})`)
@@ -21,7 +23,9 @@ const WorkoutSessionApi = {
   async getSessions(userId = null) {
     const activeUserId = getStoredUserId(userId)
     const url = activeUserId ? `${API_BASE_URL}?userId=${encodeURIComponent(activeUserId)}` : API_BASE_URL
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      credentials: 'include'
+    })
     if (!response.ok) {
       const errorText = await response.text()
       throw new Error(errorText || `Failed to fetch sessions (HTTP ${response.status})`)
@@ -41,6 +45,7 @@ const WorkoutSessionApi = {
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(payload)
     })
 
@@ -64,6 +69,7 @@ const WorkoutSessionApi = {
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(payload)
     })
 
@@ -79,7 +85,9 @@ const WorkoutSessionApi = {
     const activeUserId = getStoredUserId(userId)
     const url = activeUserId ? `${API_BASE_URL}/templates?userId=${encodeURIComponent(activeUserId)}` : `${API_BASE_URL}/templates`
     try {
-      const response = await fetch(url)
+      const response = await fetch(url, {
+        credentials: 'include'
+      })
       if (response.ok) {
         return await response.json()
       }
@@ -101,6 +109,7 @@ const WorkoutSessionApi = {
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(payload)
     })
 
@@ -116,7 +125,9 @@ const WorkoutSessionApi = {
     const activeUserId = getStoredUserId(userId)
     const url = activeUserId ? `${API_BASE_URL}/workout-templates?userId=${encodeURIComponent(activeUserId)}` : `${API_BASE_URL}/workout-templates`
     try {
-      const response = await fetch(url)
+      const response = await fetch(url, {
+        credentials: 'include'
+      })
       if (response.ok) {
         return await response.json()
       }
@@ -138,6 +149,7 @@ const WorkoutSessionApi = {
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(payload)
     })
 

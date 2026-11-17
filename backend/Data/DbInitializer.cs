@@ -8,8 +8,63 @@ public static class DbInitializer
 {
     public static async Task SeedAsync(AppDbContext context)
     {
-        // Ensure database tables exist
-        await context.Database.EnsureCreatedAsync();
+        var passwordHasher = new Microsoft.AspNetCore.Identity.PasswordHasher<ApplicationUser>();
+
+        var user1 = await context.Users.FirstOrDefaultAsync(u => u.UserName == "tyler_dev" || u.Email == "tyler@example.com");
+        if (user1 == null)
+        {
+            user1 = new ApplicationUser
+            {
+                Id = "tyler_dev",
+                UserName = "tyler_dev",
+                NormalizedUserName = "TYLER_DEV",
+                Email = "tyler@example.com",
+                NormalizedEmail = "TYLER@EXAMPLE.COM",
+                EmailConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString()
+            };
+            user1.PasswordHash = passwordHasher.HashPassword(user1, "Password123!");
+            context.Users.Add(user1);
+        }
+        else if (string.IsNullOrEmpty(user1.PasswordHash))
+        {
+            user1.Email = "tyler@example.com";
+            user1.NormalizedEmail = "TYLER@EXAMPLE.COM";
+            user1.PasswordHash = passwordHasher.HashPassword(user1, "Password123!");
+        }
+
+        var user2 = await context.Users.FirstOrDefaultAsync(u => u.UserName == "alex_fit" || u.Email == "alex@example.com");
+        if (user2 == null)
+        {
+            user2 = new ApplicationUser
+            {
+                Id = "alex_fit",
+                UserName = "alex_fit",
+                NormalizedUserName = "ALEX_FIT",
+                Email = "alex@example.com",
+                NormalizedEmail = "ALEX@EXAMPLE.COM",
+                EmailConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString()
+            };
+            user2.PasswordHash = passwordHasher.HashPassword(user2, "Password123!");
+            context.Users.Add(user2);
+        }
+        else if (string.IsNullOrEmpty(user2.PasswordHash))
+        {
+            user2.Email = "alex@example.com";
+            user2.NormalizedEmail = "ALEX@EXAMPLE.COM";
+            user2.PasswordHash = passwordHasher.HashPassword(user2, "Password123!");
+        }
+
+        var demoUser = await context.Users.FirstOrDefaultAsync(u => u.UserName == "demo_user" || u.Email == "demo@example.com");
+        if (demoUser != null && string.IsNullOrEmpty(demoUser.PasswordHash))
+        {
+            demoUser.Email = "demo@example.com";
+            demoUser.NormalizedEmail = "DEMO@EXAMPLE.COM";
+            demoUser.PasswordHash = passwordHasher.HashPassword(demoUser, "Password123!");
+        }
+
+        await context.SaveChangesAsync();
 
         if (await context.WorkoutTemplates.AnyAsync())
         {
@@ -95,37 +150,29 @@ public static class DbInitializer
 
         var workoutTempUpper = new Workout_Template
         {
-            Workout_Name = "Upper Body Template",
+            Workout_Name = "Power Upper Body Workout",
+            UserId = null, // Globally accessible template
             ExerciseTemplates = new List<Exercise_Template> { exTempBench, exTempRow }
         };
 
         var workoutTempLower = new Workout_Template
         {
             Workout_Name = "Lower Body Power Template",
+            UserId = "tyler_dev",
             ExerciseTemplates = new List<Exercise_Template> { exTempSquat, exTempRDL }
         };
 
         var workoutTempPush = new Workout_Template
         {
             Workout_Name = "Push Day Hypertrophy",
+            UserId = "tyler_dev",
             ExerciseTemplates = new List<Exercise_Template> { exTempPushBench, exTempOHP, exTempInclineDumbbell }
         };
 
         context.WorkoutTemplates.AddRange(workoutTempUpper, workoutTempLower, workoutTempPush);
 
-        var user1 = await context.Users.FindAsync("tyler_dev");
-        if (user1 == null)
-        {
-            user1 = new User { UserId = "tyler_dev" };
-            context.Users.Add(user1);
-        }
-
-        var user2 = await context.Users.FindAsync("alex_fit");
-        if (user2 == null)
-        {
-            user2 = new User { UserId = "alex_fit" };
-            context.Users.Add(user2);
-        }
+        user1 ??= await context.Users.FirstAsync(u => u.UserName == "tyler_dev");
+        user2 ??= await context.Users.FirstAsync(u => u.UserName == "alex_fit");
 
         // Workout 1 for Tyler
         var workout1 = new Workout

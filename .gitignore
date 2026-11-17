@@ -14,3 +14,9 @@ dist/
 .idea/
 .DS_Store
 *.user
+
+# Environment and Secrets
+.env
+*.env
+!.env.example
+

@@ -1,16 +1,16 @@
 using Backend.Models;
 using Backend.Models.Templates;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<ApplicationUser>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
 
-    public DbSet<User> Users { get; set; } = null!;
     public DbSet<Session> Sessions { get; set; } = null!;
     public DbSet<Workout> Workouts { get; set; } = null!;
     public DbSet<Exercise> Exercises { get; set; } = null!;
@@ -24,13 +24,17 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<User>()
-            .HasKey(u => u.UserId);
-
         modelBuilder.Entity<Session>()
             .HasOne(s => s.User)
             .WithMany(u => u.Sessions)
             .HasForeignKey(s => s.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Workout_Template>()
+            .HasOne<ApplicationUser>()
+            .WithMany(u => u.WorkoutTemplates)
+            .HasForeignKey(wt => wt.UserId)
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Session>()

@@ -4,7 +4,7 @@ public class Session
 {
     public int Id { get; set; }
     public string UserId { get; set; } = string.Empty;
-    public User? User { get; set; }
+    public ApplicationUser? User { get; set; }
 
     public int ExecutedWorkoutId { get; set; }
     public Workout ExecutedWorkout { get; set; } = null!;

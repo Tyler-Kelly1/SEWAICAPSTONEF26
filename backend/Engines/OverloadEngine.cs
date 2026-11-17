@@ -21,7 +21,10 @@ public class OverloadEngine : IOverloadEngine
 
     public async Task<Set_Value?> GetPreviousSetValueAsync(int? exerciseTemplateId, string? exerciseName, int setIndex, string? userId = null)
     {
-        if (_context == null) return null;
+        if (_context == null || string.IsNullOrWhiteSpace(userId))
+        {
+            return null; // Progressive overload must strictly be isolated to the requesting user
+        }
 
         IQueryable<Exercise> query = _context.Exercises
             .Include(e => e.Workout)

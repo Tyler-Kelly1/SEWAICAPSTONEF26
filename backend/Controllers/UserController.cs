@@ -1,21 +1,26 @@
 using Backend.DTOs;
 using Backend.Engines;
 using Backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class UserController : ControllerBase
 {
     private readonly IUserEngine _engine;
+    private readonly IAuthEngine _authEngine;
 
-    public UserController(IUserEngine engine)
+    public UserController(IUserEngine engine, IAuthEngine authEngine)
     {
         _engine = engine;
+        _authEngine = authEngine;
     }
 
+    [AllowAnonymous]
     [HttpGet("exists/{userId}")]
     public async Task<ActionResult<UserCheckResultDto>> CheckUserExists(string userId)
     {
@@ -30,6 +35,11 @@ public class UserController : ControllerBase
     [HttpGet("{userId}")]
     public async Task<ActionResult<User>> GetUserById(string userId)
     {
+        if (!_authEngine.ValidateUserAccess(User, userId))
+        {
+            return Forbid();
+        }
+
         var user = await _engine.GetUserByIdAsync(userId);
         if (user == null)
         {
@@ -42,25 +52,24 @@ public class UserController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<User>>> GetAllUsers()
     {
-        var users = await _engine.GetAllUsersAsync();
-        return Ok(users);
+        var authUserId = _authEngine.GetAuthenticatedUserId(User);
+        if (string.IsNullOrEmpty(authUserId))
+        {
+            return Unauthorized();
+        }
+
+        var user = await _engine.GetUserByIdAsync(authUserId);
+        if (user == null)
+        {
+            return Ok(Enumerable.Empty<User>());
+        }
+
+        return Ok(new[] { user });
     }
 
     [HttpPost]
-    public async Task<ActionResult<User>> CreateUser([FromBody] CreateUserDto dto)
+    public ActionResult CreateUser([FromBody] CreateUserDto dto)
     {
-        try
-        {
-            var created = await _engine.CreateUserAsync(dto);
-            return CreatedAtAction(nameof(GetUserById), new { userId = created.UserId }, created);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(new { message = ex.Message });
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        return BadRequest(new { message = "Accounts must be created via the /api/auth/register endpoint with password authentication." });
     }
 }

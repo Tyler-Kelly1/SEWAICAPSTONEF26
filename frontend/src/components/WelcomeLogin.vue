@@ -2,88 +2,111 @@
 import { ref } from 'vue'
 
 const props = defineProps({
-  existingUsers: {
-    type: Array,
-    default: () => []
-  },
   loading: {
     type: Boolean,
     default: false
   }
 })
 
-const emit = defineEmits(['check-user', 'create-user', 'login-success'])
+const emit = defineEmits(['login', 'register', 'login-success'])
 
-const inputUserId = ref('')
-const isChecking = ref(false)
-const isCreating = ref(false)
-const userNotFound = ref(false)
-const pendingUserId = ref('')
+const activeMode = ref('login') // 'login' | 'register'
+const isSubmitting = ref(false)
 const errorMessage = ref('')
-const infoMessage = ref('')
+const successMessage = ref('')
 
-const handleContinue = () => {
+// Login form model
+const loginEmail = ref('')
+const loginPassword = ref('')
+
+// Register form model
+const registerUsername = ref('')
+const registerEmail = ref('')
+const registerPassword = ref('')
+const registerConfirmPassword = ref('')
+
+const switchMode = (mode) => {
+  activeMode.value = mode
   errorMessage.value = ''
-  infoMessage.value = ''
-  userNotFound.value = false
+  successMessage.value = ''
+}
 
-  const trimmed = inputUserId.value?.trim()
-  if (!trimmed) {
-    errorMessage.value = 'Please enter a User ID.'
+const handleLoginSubmit = () => {
+  errorMessage.value = ''
+  successMessage.value = ''
+
+  const emailTrimmed = loginEmail.value?.trim()
+  if (!emailTrimmed) {
+    errorMessage.value = 'Please enter your registered email address.'
     return
   }
 
-  isChecking.value = true
-  emit('check-user', {
-    userId: trimmed,
-    callback: ({ exists, userId, error }) => {
-      isChecking.value = false
+  if (!loginPassword.value) {
+    errorMessage.value = 'Please enter your password.'
+    return
+  }
+
+  isSubmitting.value = true
+  emit('login', {
+    email: emailTrimmed,
+    password: loginPassword.value,
+    callback: ({ success, user, error }) => {
+      isSubmitting.value = false
       if (error) {
         errorMessage.value = error
         return
       }
-
-      if (exists) {
-        emit('login-success', userId)
-      } else {
-        userNotFound.value = true
-        pendingUserId.value = userId || trimmed
-      }
-    }
-  })
-}
-
-const handleCreateAccount = () => {
-  if (!pendingUserId.value) return
-
-  isCreating.value = true
-  errorMessage.value = ''
-
-  emit('create-user', {
-    userId: pendingUserId.value,
-    callback: ({ success, userId, error }) => {
-      isCreating.value = false
-      if (error) {
-        errorMessage.value = error
-        return
-      }
-
       if (success) {
-        emit('login-success', userId || pendingUserId.value)
+        emit('login-success', user?.userId || user?.userName || emailTrimmed)
       }
     }
   })
 }
 
-const resetNotFound = () => {
-  userNotFound.value = false
-  pendingUserId.value = ''
+const handleRegisterSubmit = () => {
   errorMessage.value = ''
-}
+  successMessage.value = ''
 
-const selectExistingUser = (userId) => {
-  inputUserId.value = userId
-  handleContinue()
+  const usernameTrimmed = registerUsername.value?.trim()
+  const emailTrimmed = registerEmail.value?.trim()
+
+  if (!usernameTrimmed) {
+    errorMessage.value = 'Please choose an athlete username.'
+    return
+  }
+
+  if (!emailTrimmed) {
+    errorMessage.value = 'Please enter a valid email address.'
+    return
+  }
+
+  if (!registerPassword.value || registerPassword.value.length < 6) {
+    errorMessage.value = 'Password must be at least 6 characters long.'
+    return
+  }
+
+  if (registerPassword.value !== registerConfirmPassword.value) {
+    errorMessage.value = 'Passwords do not match.'
+    return
+  }
+
+  isSubmitting.value = true
+  emit('register', {
+    username: usernameTrimmed,
+    email: emailTrimmed,
+    password: registerPassword.value,
+    callback: ({ success, user, error }) => {
+      isSubmitting.value = false
+      if (error) {
+        errorMessage.value = error
+        return
+      }
+      if (success) {
+        successMessage.value = 'Account created successfully! Authenticating...'
+        emit('login-success', user?.userId || user?.userName || usernameTrimmed)
+      }
+    }
+  })
 }
 </script>
 
@@ -91,13 +114,36 @@ const selectExistingUser = (userId) => {
   <div class="login-dossier-frame">
     <!-- Main Dossier Content -->
     <div class="pa-6 bg-surface">
+      <!-- Dossier Header -->
       <div class="mb-4 pb-3 border-b border-outline-variant">
         <h1 class="font-headline text-h5 font-weight-bold text-primary text-uppercase mb-1">
           Welcome to Overload
         </h1>
         <p class="font-body text-body-2 text-on-surface-variant mb-0">
-          Enter your User ID to start tracking sessions and progressive overload.
+          Analog Gym Journal & Progressive Overload Tracking. Authenticate with your email and password.
         </p>
+      </div>
+
+      <!-- Mode Switcher Tabs -->
+      <div class="d-flex ga-2 mb-4">
+        <button
+          type="button"
+          class="brutalist-tab-btn"
+          :class="{ 'brutalist-tab-btn--active': activeMode === 'login' }"
+          data-testid="tab-login-mode"
+          @click="switchMode('login')"
+        >
+          [ LOG IN ]
+        </button>
+        <button
+          type="button"
+          class="brutalist-tab-btn"
+          :class="{ 'brutalist-tab-btn--active': activeMode === 'register' }"
+          data-testid="tab-register-mode"
+          @click="switchMode('register')"
+        >
+          [ REGISTER ACCOUNT ]
+        </button>
       </div>
 
       <!-- Error Alert -->
@@ -113,72 +159,51 @@ const selectExistingUser = (userId) => {
         <button type="button" class="close-alert-btn" @click="errorMessage = ''">&times;</button>
       </div>
 
-      <!-- Info Alert -->
+      <!-- Success Alert -->
       <div
-        v-if="infoMessage"
+        v-if="successMessage"
         class="alert-brutalist alert-info mb-4 pa-3 d-flex align-center justify-space-between font-mono text-caption font-weight-bold"
       >
         <div class="d-flex align-center ga-2">
-          <v-icon icon="mdi-information-outline" size="18" color="primary"></v-icon>
-          <span>{{ infoMessage }}</span>
+          <v-icon icon="mdi-check-circle-outline" size="18" color="primary"></v-icon>
+          <span>{{ successMessage }}</span>
         </div>
-        <button type="button" class="close-alert-btn" @click="infoMessage = ''">&times;</button>
+        <button type="button" class="close-alert-btn" @click="successMessage = ''">&times;</button>
       </div>
 
-      <!-- User Not Found Prompt / Account Creation Confirmation -->
-      <div
-        v-if="userNotFound"
-        class="account-prompt-box pa-4 mb-5"
-        data-testid="user-not-found-prompt"
-      >
-        <div class="d-flex align-center ga-2 mb-2">
-          <span class="font-mono text-caption font-weight-bold text-error uppercase">[UNREGISTERED ATHLETE]</span>
-        </div>
-        <div class="font-headline text-subtitle-1 font-weight-bold text-primary mb-1">
-          User "{{ pendingUserId }}" does not exist in local registry.
-        </div>
-        <div class="font-body text-body-2 text-on-surface-variant mb-4">
-          Would you like to initialize a new athlete profile with this User ID? No password is required.
-        </div>
-
-        <div class="d-flex flex-wrap ga-3">
-          <button
-            type="button"
-            class="brutalist-btn brutalist-btn-primary"
-            :disabled="isCreating"
-            data-testid="btn-create-account"
-            @click="handleCreateAccount"
-          >
-            <span v-if="isCreating">INITIALIZING...</span>
-            <span v-else>[ + INITIALIZE ACCOUNT ]</span>
-          </button>
-          <button
-            type="button"
-            class="brutalist-btn brutalist-btn-secondary"
-            :disabled="isCreating"
-            @click="resetNotFound"
-          >
-            [ CANCEL ]
-          </button>
-        </div>
-      </div>
-
-      <!-- Main Login Input Form -->
-      <form v-if="!userNotFound" @submit.prevent="handleContinue">
-        <div class="mb-4">
+      <!-- LOGIN FORM -->
+      <form v-if="activeMode === 'login'" data-testid="form-login" @submit.prevent="handleLoginSubmit">
+        <div class="mb-3">
           <label class="d-block font-mono text-caption font-weight-bold text-primary uppercase mb-1">
-            ATHLETE USER ID / LOG IDENTIFIER:
+            ATHLETE EMAIL ADDRESS:
           </label>
           <div class="input-well d-flex align-center px-3 py-2">
-            <span class="mr-2 font-mono text-outline font-weight-bold">✏️</span>
+            <span class="mr-2 font-mono text-outline font-weight-bold">✉️</span>
             <input
-              v-model="inputUserId"
-              type="text"
+              v-model="loginEmail"
+              type="email"
               class="font-mono text-body-1 text-primary unrounded-input w-100"
-              placeholder="Enter your user ID (e.g. tyler_dev)"
+              placeholder="e.g. tyler@example.com"
               autofocus
-              :disabled="isChecking || loading"
-              data-testid="input-user-id"
+              :disabled="isSubmitting || loading"
+              data-testid="input-login-email"
+            />
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="d-block font-mono text-caption font-weight-bold text-primary uppercase mb-1">
+            PASSWORD:
+          </label>
+          <div class="input-well d-flex align-center px-3 py-2">
+            <span class="mr-2 font-mono text-outline font-weight-bold">🔒</span>
+            <input
+              v-model="loginPassword"
+              type="password"
+              class="font-mono text-body-1 text-primary unrounded-input w-100"
+              placeholder="Enter your password"
+              :disabled="isSubmitting || loading"
+              data-testid="input-login-password"
             />
           </div>
         </div>
@@ -186,31 +211,95 @@ const selectExistingUser = (userId) => {
         <button
           type="submit"
           class="brutalist-btn brutalist-btn-primary w-100 py-3"
-          :disabled="isChecking || loading || !inputUserId || !inputUserId.trim()"
+          :disabled="isSubmitting || loading || !loginEmail || !loginPassword"
           data-testid="btn-login-submit"
         >
-          <span v-if="isChecking || loading">AUTHENTICATING...</span>
+          <span v-if="isSubmitting || loading">AUTHENTICATING...</span>
           <span v-else>[ CONTINUE &rarr; ]</span>
         </button>
       </form>
 
-      <!-- Quick Select Registered Users -->
-      <div v-if="existingUsers && existingUsers.length > 0" class="mt-5 pt-3 border-t border-outline-variant">
-        <div class="font-mono text-caption text-on-surface-variant font-weight-bold uppercase mb-2">
-          // RECENT ATHLETE PROFILES:
+      <!-- REGISTER FORM -->
+      <form v-else data-testid="form-register" @submit.prevent="handleRegisterSubmit">
+        <div class="mb-3">
+          <label class="d-block font-mono text-caption font-weight-bold text-primary uppercase mb-1">
+            CHOOSE ATHLETE USERNAME / LOG ID:
+          </label>
+          <div class="input-well d-flex align-center px-3 py-2">
+            <span class="mr-2 font-mono text-outline font-weight-bold">👤</span>
+            <input
+              v-model="registerUsername"
+              type="text"
+              class="font-mono text-body-1 text-primary unrounded-input w-100"
+              placeholder="e.g. tyler_dev"
+              autofocus
+              :disabled="isSubmitting || loading"
+              data-testid="input-register-username"
+            />
+          </div>
         </div>
-        <div class="d-flex flex-wrap ga-2">
-          <button
-            v-for="user in existingUsers"
-            :key="user.userId || user"
-            type="button"
-            class="user-profile-tag font-mono text-caption font-weight-bold"
-            @click="selectExistingUser(user.userId || user)"
-          >
-            <span class="text-outline mr-1">#</span>{{ user.userId || user }}
-          </button>
+
+        <div class="mb-3">
+          <label class="d-block font-mono text-caption font-weight-bold text-primary uppercase mb-1">
+            EMAIL ADDRESS:
+          </label>
+          <div class="input-well d-flex align-center px-3 py-2">
+            <span class="mr-2 font-mono text-outline font-weight-bold">✉️</span>
+            <input
+              v-model="registerEmail"
+              type="email"
+              class="font-mono text-body-1 text-primary unrounded-input w-100"
+              placeholder="e.g. tyler@example.com"
+              :disabled="isSubmitting || loading"
+              data-testid="input-register-email"
+            />
+          </div>
         </div>
-      </div>
+
+        <div class="mb-3">
+          <label class="d-block font-mono text-caption font-weight-bold text-primary uppercase mb-1">
+            CREATE PASSWORD (MIN 6 CHARACTERS):
+          </label>
+          <div class="input-well d-flex align-center px-3 py-2">
+            <span class="mr-2 font-mono text-outline font-weight-bold">🔒</span>
+            <input
+              v-model="registerPassword"
+              type="password"
+              class="font-mono text-body-1 text-primary unrounded-input w-100"
+              placeholder="Enter password"
+              :disabled="isSubmitting || loading"
+              data-testid="input-register-password"
+            />
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="d-block font-mono text-caption font-weight-bold text-primary uppercase mb-1">
+            CONFIRM PASSWORD:
+          </label>
+          <div class="input-well d-flex align-center px-3 py-2">
+            <span class="mr-2 font-mono text-outline font-weight-bold">🔒</span>
+            <input
+              v-model="registerConfirmPassword"
+              type="password"
+              class="font-mono text-body-1 text-primary unrounded-input w-100"
+              placeholder="Re-enter password"
+              :disabled="isSubmitting || loading"
+              data-testid="input-register-confirm-password"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="brutalist-btn brutalist-btn-primary w-100 py-3"
+          :disabled="isSubmitting || loading || !registerUsername || !registerEmail || !registerPassword"
+          data-testid="btn-register-submit"
+        >
+          <span v-if="isSubmitting || loading">INITIALIZING ATHLETE ACCOUNT...</span>
+          <span v-else>[ + INITIALIZE ACCOUNT ]</span>
+        </button>
+      </form>
     </div>
   </div>
 </template>
@@ -228,6 +317,28 @@ const selectExistingUser = (userId) => {
   background-color: #f6ebd0; /* surface from DESIGN.md */
   border: 2px solid #1f1d18; /* primary from DESIGN.md */
   box-shadow: none;           /* No shadow on card */
+}
+
+/* Tab Switcher */
+.brutalist-tab-btn {
+  flex: 1;
+  font-family: 'Patrick Hand', cursive, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.5rem 1rem;
+  border: 2px solid #1f1d18;
+  background-color: #f0e1b9; /* surface-container */
+  color: #1f1d18;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px 0px #2c2820;
+  transition: all 0.08s ease;
+}
+
+.brutalist-tab-btn--active {
+  background-color: #1f1d18;
+  color: #fefbe8;
+  box-shadow: none;
+  transform: translate(2px, 2px);
 }
 
 .input-well {
@@ -313,31 +424,5 @@ const selectExistingUser = (userId) => {
   line-height: 1;
   cursor: pointer;
   color: inherit;
-}
-
-/* Account creation prompt */
-.account-prompt-box {
-  background-color: #f4e7c5; /* surface-container-low from DESIGN.md */
-  border: 1.5px solid #b91c1c;
-}
-
-/* Athlete tags */
-.user-profile-tag {
-  background-color: #eedea8; /* secondary-container from DESIGN.md */
-  border: 1.5px solid #1f1d18;
-  color: #1f1d18;
-  padding: 0.25rem 0.5rem;
-  cursor: pointer;
-  box-shadow: 1px 1px 0px 0px #2c2820;
-  transition: transform 0.08s ease;
-}
-
-.user-profile-tag:hover {
-  background-color: #ebdcaf;
-}
-
-.user-profile-tag:active {
-  transform: translate(1px, 1px);
-  box-shadow: none;
 }
 </style>

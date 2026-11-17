@@ -14,7 +14,9 @@ describe('UserApi', () => {
     })
 
     const result = await UserApi.checkUserExists('tyler_dev')
-    expect(global.fetch).toHaveBeenCalledWith('http://localhost:5245/api/User/exists/tyler_dev')
+    expect(global.fetch).toHaveBeenCalledWith('http://localhost:5245/api/User/exists/tyler_dev', {
+      credentials: 'include'
+    })
     expect(result).toEqual(mockResult)
   })
 
@@ -33,7 +35,9 @@ describe('UserApi', () => {
     })
 
     const result = await UserApi.getUser('athlete_1')
-    expect(global.fetch).toHaveBeenCalledWith('http://localhost:5245/api/User/athlete_1')
+    expect(global.fetch).toHaveBeenCalledWith('http://localhost:5245/api/User/athlete_1', {
+      credentials: 'include'
+    })
     expect(result).toEqual(mockUser)
   })
 
@@ -60,6 +64,7 @@ describe('UserApi', () => {
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify({ userId: 'new_lifter' })
     })
     expect(result).toEqual(mockCreated)
@@ -83,7 +88,9 @@ describe('UserApi', () => {
     })
 
     const result = await UserApi.getUsers()
-    expect(global.fetch).toHaveBeenCalledWith('http://localhost:5245/api/User')
+    expect(global.fetch).toHaveBeenCalledWith('http://localhost:5245/api/User', {
+      credentials: 'include'
+    })
     expect(result).toEqual(mockUsers)
   })
 })

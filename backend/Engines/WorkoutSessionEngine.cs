@@ -111,9 +111,9 @@ public class WorkoutSessionEngine : IWorkoutSessionEngine
         };
     }
 
-    public async Task<IEnumerable<UserDto>> GetUsersWithSessionsAsync()
+    public async Task<IEnumerable<UserDto>> GetUsersWithSessionsAsync(string? userId = null)
     {
-        var users = await _context.Users
+        IQueryable<ApplicationUser> query = _context.Users
             .Include(u => u.Sessions)
                 .ThenInclude(s => s.ExecutedWorkout)
                     .ThenInclude(w => w.Template)
@@ -125,14 +125,24 @@ public class WorkoutSessionEngine : IWorkoutSessionEngine
                 .ThenInclude(s => s.ExecutedWorkout)
                     .ThenInclude(w => w.Exercises)
                         .ThenInclude(e => e.Sets)
-                            .ThenInclude(st => st.Template)
-            .ToListAsync();
+                            .ThenInclude(st => st.Template);
 
-        return users.Select(MapToUserDto);
+        if (!string.IsNullOrWhiteSpace(userId))
+        {
+            query = query.Where(u => u.Id == userId || u.UserName == userId);
+        }
+
+        var users = await query.ToListAsync();
+        return users.Select(u => MapToUserDto(u));
     }
 
     public async Task<IEnumerable<SessionDto>> GetSessionsAsync(string? userId = null)
     {
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return Enumerable.Empty<SessionDto>();
+        }
+
         IQueryable<Session> query = _context.Sessions
             .Include(s => s.ExecutedWorkout)
                 .ThenInclude(w => w.Template)
@@ -143,20 +153,16 @@ public class WorkoutSessionEngine : IWorkoutSessionEngine
                 .ThenInclude(w => w.Exercises)
                     .ThenInclude(e => e.Sets)
                         .ThenInclude(st => st.Template)
+            .Where(s => s.UserId == userId)
             .OrderByDescending(s => s.SessionDate);
-
-        if (!string.IsNullOrWhiteSpace(userId))
-        {
-            query = query.Where(s => s.UserId == userId);
-        }
 
         var sessions = await query.ToListAsync();
         return sessions.Select(MapToSessionDto);
     }
 
-    public async Task<SessionDto?> GetSessionByIdAsync(int id)
+    public async Task<SessionDto?> GetSessionByIdAsync(int id, string? userId = null)
     {
-        var session = await _context.Sessions
+        IQueryable<Session> query = _context.Sessions
             .Include(s => s.ExecutedWorkout)
                 .ThenInclude(w => w.Template)
             .Include(s => s.ExecutedWorkout)
@@ -165,9 +171,14 @@ public class WorkoutSessionEngine : IWorkoutSessionEngine
             .Include(s => s.ExecutedWorkout)
                 .ThenInclude(w => w.Exercises)
                     .ThenInclude(e => e.Sets)
-                        .ThenInclude(st => st.Template)
-            .FirstOrDefaultAsync(s => s.Id == id);
+                        .ThenInclude(st => st.Template);
 
+        if (!string.IsNullOrWhiteSpace(userId))
+        {
+            query = query.Where(s => s.UserId == userId);
+        }
+
+        var session = await query.FirstOrDefaultAsync(s => s.Id == id);
         return session != null ? MapToSessionDto(session) : null;
     }
 
@@ -178,12 +189,16 @@ public class WorkoutSessionEngine : IWorkoutSessionEngine
             throw new ArgumentException("EndTime cannot be earlier than StartTime.");
         }
 
-        // Ensure user exists
-        var user = await _context.Users.FindAsync(dto.UserId);
+        if (string.IsNullOrWhiteSpace(dto.UserId))
+        {
+            throw new ArgumentException("User ID is required to record a session.");
+        }
+
+        // Validate that user exists in database
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.UserId || u.UserName == dto.UserId);
         if (user == null)
         {
-            user = new User { UserId = dto.UserId };
-            _context.Users.Add(user);
+            throw new ArgumentException($"User '{dto.UserId}' does not exist.");
         }
 
         var existingTemplateIds = await _context.ExerciseTemplates
@@ -218,7 +233,7 @@ public class WorkoutSessionEngine : IWorkoutSessionEngine
 
         var session = new Session
         {
-            UserId = dto.UserId,
+            UserId = user.Id,
             ExecutedWorkout = workout,
             SessionDate = DateTime.UtcNow
         };
@@ -229,7 +244,135 @@ public class WorkoutSessionEngine : IWorkoutSessionEngine
         return MapToSessionDto(session);
     }
 
-    private static UserDto MapToUserDto(User user)
+    public async Task<IEnumerable<WorkoutTemplateDto>> GetWorkoutTemplatesAsync(string? userId = null)
+    {
+        IQueryable<Workout_Template> query = _context.WorkoutTemplates
+            .Include(wt => wt.ExerciseTemplates)
+                .ThenInclude(et => et.SetTemplates);
+
+        // Allow access only to:
+        // 1. The global template ("Power Upper Body Workout" or "Upper Body Power Template" with UserId == null)
+        // 2. Custom templates created by the authenticated user
+        query = query.Where(wt =>
+            (wt.UserId == null && (wt.Workout_Name == "Power Upper Body Workout" || wt.Workout_Name == "Upper Body Power Template")) ||
+            (!string.IsNullOrWhiteSpace(userId) && wt.UserId == userId));
+
+        var templates = await query.ToListAsync();
+        return templates.Select(MapToWorkoutTemplateDto)!;
+    }
+
+    public async Task<WorkoutTemplateDto?> GetWorkoutTemplateByIdAsync(int id, string? userId = null)
+    {
+        IQueryable<Workout_Template> query = _context.WorkoutTemplates
+            .Include(wt => wt.ExerciseTemplates)
+                .ThenInclude(et => et.SetTemplates);
+
+        query = query.Where(wt => wt.Id == id && (
+            (wt.UserId == null && (wt.Workout_Name == "Power Upper Body Workout" || wt.Workout_Name == "Upper Body Power Template")) ||
+            (!string.IsNullOrWhiteSpace(userId) && wt.UserId == userId)));
+
+        var template = await query.FirstOrDefaultAsync();
+        return template != null ? MapToWorkoutTemplateDto(template) : null;
+    }
+
+    public async Task<WorkoutTemplateDto> CreateWorkoutTemplateAsync(CreateWorkoutTemplateDto dto)
+    {
+        ArgumentNullException.ThrowIfNull(dto);
+        if (string.IsNullOrWhiteSpace(dto.Workout_Name))
+        {
+            throw new ArgumentException("Workout template name is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(dto.UserId))
+        {
+            throw new ArgumentException("User ID is required to create a workout template.");
+        }
+
+        var workoutTemplate = new Workout_Template
+        {
+            Workout_Name = dto.Workout_Name.Trim(),
+            UserId = dto.UserId.Trim()
+        };
+        _context.WorkoutTemplates.Add(workoutTemplate);
+        await _context.SaveChangesAsync();
+
+        if (dto.ExerciseTemplates != null && dto.ExerciseTemplates.Count > 0)
+        {
+            foreach (var etDto in dto.ExerciseTemplates)
+            {
+                var exerciseTemplate = new Exercise_Template
+                {
+                    Exercise_Name = etDto.Exercise_Name.Trim(),
+                    Min_Set = etDto.Min_Set > 0 ? etDto.Min_Set : 3,
+                    Max_Set = etDto.Max_Set > 0 ? etDto.Max_Set : 5,
+                    Weight_Step = etDto.Weight_Step > 0 ? etDto.Weight_Step : 0.05m,
+                    Volume_Step = etDto.Volume_Step > 0 ? etDto.Volume_Step : 1,
+                    WorkoutTemplateId = workoutTemplate.Id,
+                    SetTemplates = etDto.SetTemplates?.Select(st => new Set_Template
+                    {
+                        Failure_Set = st.Failure_Set,
+                        Min_Reps = st.Min_Reps,
+                        Max_Reps = st.Max_Reps
+                    }).ToList() ?? new List<Set_Template>()
+                };
+                _context.ExerciseTemplates.Add(exerciseTemplate);
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        var created = await _context.WorkoutTemplates
+            .Include(wt => wt.ExerciseTemplates)
+                .ThenInclude(et => et.SetTemplates)
+            .FirstAsync(wt => wt.Id == workoutTemplate.Id);
+
+        return MapToWorkoutTemplateDto(created)!;
+    }
+
+    public async Task<IEnumerable<ExerciseTemplateDto>> GetExerciseTemplatesAsync(string? userId = null)
+    {
+        IQueryable<Exercise_Template> query = _context.ExerciseTemplates
+            .Include(et => et.SetTemplates)
+            .Include(et => et.WorkoutTemplate);
+
+        query = query.Where(et =>
+            (et.WorkoutTemplate != null && et.WorkoutTemplate.UserId == null && (et.WorkoutTemplate.Workout_Name == "Power Upper Body Workout" || et.WorkoutTemplate.Workout_Name == "Upper Body Power Template")) ||
+            (!string.IsNullOrWhiteSpace(userId) && (et.WorkoutTemplate == null || et.WorkoutTemplate.UserId == userId)));
+
+        var templates = await query.ToListAsync();
+        return templates.Select(MapToExerciseTemplateDto)!;
+    }
+
+    public async Task<ExerciseTemplateDto> CreateExerciseTemplateAsync(CreateExerciseTemplateDto dto)
+    {
+        ArgumentNullException.ThrowIfNull(dto);
+        if (string.IsNullOrWhiteSpace(dto.Exercise_Name))
+        {
+            throw new ArgumentException("Exercise name is required.");
+        }
+
+        var exerciseTemplate = new Exercise_Template
+        {
+            Exercise_Name = dto.Exercise_Name.Trim(),
+            Min_Set = dto.Min_Set > 0 ? dto.Min_Set : 3,
+            Max_Set = dto.Max_Set > 0 ? dto.Max_Set : 5,
+            Weight_Step = dto.Weight_Step > 0 ? dto.Weight_Step : 0.05m,
+            Volume_Step = dto.Volume_Step > 0 ? dto.Volume_Step : 1,
+            WorkoutTemplateId = dto.WorkoutTemplateId,
+            SetTemplates = dto.SetTemplates?.Select(st => new Set_Template
+            {
+                Failure_Set = st.Failure_Set,
+                Min_Reps = st.Min_Reps,
+                Max_Reps = st.Max_Reps
+            }).ToList() ?? new List<Set_Template>()
+        };
+
+        _context.ExerciseTemplates.Add(exerciseTemplate);
+        await _context.SaveChangesAsync();
+
+        return MapToExerciseTemplateDto(exerciseTemplate)!;
+    }
+
+    private static UserDto MapToUserDto(ApplicationUser user)
     {
         return new UserDto
         {
@@ -317,7 +460,14 @@ public class WorkoutSessionEngine : IWorkoutSessionEngine
                 Max_Set = et.Max_Set,
                 Min_Set = et.Min_Set,
                 Weight_Step = et.Weight_Step,
-                Volume_Step = et.Volume_Step
+                Volume_Step = et.Volume_Step,
+                SetTemplates = et.SetTemplates?.Select(st => new SetTemplateDto
+                {
+                    Id = st.Id,
+                    Failure_Set = st.Failure_Set,
+                    Max_Reps = st.Max_Reps,
+                    Min_Reps = st.Min_Reps
+                }).ToList() ?? new List<SetTemplateDto>()
             }).ToList() ?? new List<ExerciseTemplateDto>()
         };
     }

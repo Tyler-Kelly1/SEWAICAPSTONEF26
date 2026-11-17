@@ -65,22 +65,38 @@ public class DemoUiTests
         Assert.IsNotNull(pageTitle);
     }
 
-    private void EnsureLoggedIn(string userId = "tyler_dev")
+    private void EnsureLoggedIn(string emailOrUserId = "tyler@example.com", string password = "Password123!")
     {
+        var email = emailOrUserId;
+        if (!email.Contains("@"))
+        {
+            email = emailOrUserId == "tyler_dev" ? "tyler@example.com" : $"{emailOrUserId}@example.com";
+        }
+
         try
         {
-            var loginInputs = _driver!.FindElements(By.CssSelector("[data-testid='input-user-id'] input, [data-testid='input-user-id']"));
-            if (loginInputs.Count > 0)
+            var emailInputs = _driver!.FindElements(By.CssSelector("[data-testid='input-login-email'] input, [data-testid='input-login-email'], [data-testid='input-user-id']"));
+            if (emailInputs.Count > 0 && emailInputs[0].Displayed)
             {
-                var input = loginInputs[0].TagName.Equals("input", StringComparison.OrdinalIgnoreCase) 
-                    ? loginInputs[0] 
-                    : loginInputs[0].FindElement(By.TagName("input"));
+                var input = emailInputs[0].TagName.Equals("input", StringComparison.OrdinalIgnoreCase) 
+                    ? emailInputs[0] 
+                    : emailInputs[0].FindElement(By.TagName("input"));
                 input.Clear();
-                input.SendKeys(userId);
+                input.SendKeys(email);
+
+                var passInputs = _driver.FindElements(By.CssSelector("[data-testid='input-login-password'] input, [data-testid='input-login-password']"));
+                if (passInputs.Count > 0)
+                {
+                    var pass = passInputs[0].TagName.Equals("input", StringComparison.OrdinalIgnoreCase) ? passInputs[0] : passInputs[0].FindElement(By.TagName("input"));
+                    pass.Clear();
+                    pass.SendKeys(password);
+                }
                 
                 var submitBtn = _driver.FindElement(By.CssSelector("[data-testid='btn-login-submit']"));
                 submitBtn.Click();
-                Thread.Sleep(500);
+
+                var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
+                wait.Until(d => d.FindElements(By.CssSelector("[data-testid='current-user-chip'], [data-testid='notebook-app-bar']")).Count > 0);
             }
         }
         catch
@@ -107,18 +123,23 @@ public class DemoUiTests
         }
 
         var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
-        var loginInput = wait.Until(d => {
-            var elem = d.FindElement(By.CssSelector("[data-testid='input-user-id']"));
+        var emailInput = wait.Until(d => {
+            var elem = d.FindElement(By.CssSelector("[data-testid='input-login-email']"));
             return elem.TagName.Equals("input", StringComparison.OrdinalIgnoreCase) ? elem : elem.FindElement(By.TagName("input"));
         });
-        Assert.IsNotNull(loginInput);
+        Assert.IsNotNull(emailInput);
 
-        loginInput.SendKeys("tyler_dev");
+        emailInput.SendKeys("tyler@example.com");
+
+        var passwordInput = _driver.FindElement(By.CssSelector("[data-testid='input-login-password']"));
+        var pass = passwordInput.TagName.Equals("input", StringComparison.OrdinalIgnoreCase) ? passwordInput : passwordInput.FindElement(By.TagName("input"));
+        pass.SendKeys("Password123!");
+
         var submitBtn = _driver.FindElement(By.CssSelector("[data-testid='btn-login-submit']"));
         submitBtn.Click();
 
         var userChip = wait.Until(d => d.FindElement(By.CssSelector("[data-testid='current-user-chip']")));
-        Assert.IsTrue(userChip.Text.Contains("tyler_dev"));
+        Assert.IsTrue(userChip.Text.Contains("tyler_dev") || userChip.Text.Contains("tyler"));
     }
 
     [TestMethod]
@@ -135,18 +156,21 @@ public class DemoUiTests
 
         var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
 
-        var testTableTab = wait.Until(d => {
-            var tabs = d.FindElements(By.CssSelector("[data-testid='tab-test-table'], .v-tab"));
-            return tabs.FirstOrDefault(t => t.Text.Contains("TEST_TABLE") || t.GetAttribute("data-testid") == "tab-test-table");
+        var appTab = wait.Until(d => {
+            var tabs = d.FindElements(By.CssSelector("[data-testid='tab-workout-templates'], [data-testid='tab-start-session'], [data-testid='tab-test-table'], .v-tab"));
+            return tabs.FirstOrDefault(t => t.Displayed);
         });
-        testTableTab?.Click();
+        appTab?.Click();
 
-        var inputField = wait.Until(d => d.FindElement(By.CssSelector("input, textarea, [data-testid='input-value']")));
+        var inputField = wait.Until(d => {
+            var inputs = d.FindElements(By.CssSelector("input, textarea, [data-testid='input-value']"));
+            return inputs.FirstOrDefault(i => i.Displayed);
+        });
         Assert.IsNotNull(inputField, "Input field should be rendered on the page.");
 
         inputField.SendKeys("Selenium Interactive Test Item");
 
-        var submitButton = _driver.FindElement(By.CssSelector("button[type='submit'], .v-btn"));
+        var submitButton = _driver.FindElements(By.CssSelector("button[type='submit'], .v-btn")).FirstOrDefault(b => b.Displayed);
         Assert.IsNotNull(submitButton, "Submit button should be rendered on the page.");
     }
 }

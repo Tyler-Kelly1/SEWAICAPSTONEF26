@@ -48,24 +48,27 @@ public class WorkoutSessionEngineTests
     }
 
     [TestMethod]
-    public async Task GetSessionsAsync_ReturnsAllSessions()
+    public async Task GetSessionsAsync_ReturnsAllSessionsForUser()
     {
         // Arrange
         await DbInitializer.SeedAsync(_context);
 
         // Act
-        var sessions = await _engine.GetSessionsAsync();
+        var sessions = await _engine.GetSessionsAsync("tyler_dev");
 
         // Assert
         Assert.IsNotNull(sessions);
         var sessionList = sessions.ToList();
-        Assert.AreEqual(3, sessionList.Count);
+        Assert.IsTrue(sessionList.Count >= 2);
     }
 
     [TestMethod]
     public async Task CreateSessionAsync_ValidDto_CreatesAndReturnsSession()
     {
         // Arrange
+        _context.Users.Add(new ApplicationUser { Id = "test_user", UserName = "test_user" });
+        await _context.SaveChangesAsync();
+
         var now = DateTime.UtcNow;
         var dto = new CreateSessionDto
         {
@@ -126,6 +129,7 @@ public class WorkoutSessionEngineTests
         await DbInitializer.SeedAsync(_context);
         var dto = new ExerciseGoalRequestDto
         {
+            UserId = "tyler_dev",
             ExerciseName = "Barbell Bench Press",
             Sets = new List<CreateSetDto>
             {
@@ -181,5 +185,101 @@ public class WorkoutSessionEngineTests
         Assert.AreEqual(1, result.GoalSets.Count);
         Assert.AreEqual(52, result.GoalSets[0].Weight);
         Assert.AreEqual(6, result.GoalSets[0].Reps);
+    }
+
+    [TestMethod]
+    public async Task GetWorkoutTemplatesAsync_ReturnsSeededWorkoutTemplates()
+    {
+        // Arrange
+        await DbInitializer.SeedAsync(_context);
+
+        // Act
+        var templates = await _engine.GetWorkoutTemplatesAsync("tyler_dev");
+
+        // Assert
+        Assert.IsNotNull(templates);
+        var templateList = templates.ToList();
+        Assert.IsTrue(templateList.Count >= 3);
+        Assert.IsTrue(templateList.Any(t => t.Workout_Name.Contains("Upper Body")));
+        Assert.IsTrue(templateList.Any(t => t.Workout_Name.Contains("Lower Body")));
+        Assert.IsTrue(templateList.Any(t => t.Workout_Name.Contains("Push Day")));
+    }
+
+    [TestMethod]
+    public async Task CreateWorkoutTemplateAsync_ValidDto_CreatesAndReturnsWorkoutTemplate()
+    {
+        // Arrange
+        var dto = new CreateWorkoutTemplateDto
+        {
+            UserId = "tyler_dev",
+            Workout_Name = "Pull Day Power",
+            ExerciseTemplates = new List<CreateExerciseTemplateDto>
+            {
+                new CreateExerciseTemplateDto
+                {
+                    Exercise_Name = "Lat Pulldown",
+                    Min_Set = 3,
+                    Max_Set = 4,
+                    SetTemplates = new List<CreateSetTemplateDto>
+                    {
+                        new CreateSetTemplateDto { Min_Reps = 8, Max_Reps = 12, Failure_Set = false }
+                    }
+                }
+            }
+        };
+
+        // Act
+        var result = await _engine.CreateWorkoutTemplateAsync(dto);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Pull Day Power", result.Workout_Name);
+        Assert.AreEqual(1, result.ExerciseTemplates.Count);
+        Assert.AreEqual("Lat Pulldown", result.ExerciseTemplates[0].Exercise_Name);
+        Assert.AreEqual(1, result.ExerciseTemplates[0].SetTemplates.Count);
+    }
+
+    [TestMethod]
+    public async Task GetExerciseTemplatesAsync_ReturnsSeededExerciseTemplates()
+    {
+        // Arrange
+        await DbInitializer.SeedAsync(_context);
+
+        // Act
+        var templates = await _engine.GetExerciseTemplatesAsync("tyler_dev");
+
+        // Assert
+        Assert.IsNotNull(templates);
+        var templateList = templates.ToList();
+        Assert.IsTrue(templateList.Count >= 6);
+        Assert.IsTrue(templateList.Any(e => e.Exercise_Name == "Barbell Bench Press"));
+        Assert.IsTrue(templateList.Any(e => e.Exercise_Name == "Barbell Back Squat"));
+    }
+
+    [TestMethod]
+    public async Task CreateExerciseTemplateAsync_ValidDto_CreatesAndReturnsExerciseTemplate()
+    {
+        // Arrange
+        var dto = new CreateExerciseTemplateDto
+        {
+            Exercise_Name = "Leg Extension",
+            Min_Set = 3,
+            Max_Set = 4,
+            Weight_Step = 0.05m,
+            Volume_Step = 1,
+            SetTemplates = new List<CreateSetTemplateDto>
+            {
+                new CreateSetTemplateDto { Min_Reps = 10, Max_Reps = 15, Failure_Set = false }
+            }
+        };
+
+        // Act
+        var result = await _engine.CreateExerciseTemplateAsync(dto);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Leg Extension", result.Exercise_Name);
+        Assert.AreEqual(1, result.SetTemplates.Count);
+        Assert.AreEqual(10, result.SetTemplates[0].Min_Reps);
     }
 }

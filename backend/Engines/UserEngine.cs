@@ -21,8 +21,8 @@ public class UserEngine : IUserEngine
             return false;
         }
 
-        var normalized = userId.Trim().ToLower();
-        return await _context.Users.AnyAsync(u => u.UserId.ToLower() == normalized);
+        var normalized = userId.Trim().ToUpper();
+        return await _context.Users.AnyAsync(u => u.NormalizedUserName == normalized || u.UserName == userId.Trim() || u.Id == userId.Trim());
     }
 
     public async Task<User?> GetUserByIdAsync(string userId)
@@ -32,8 +32,9 @@ public class UserEngine : IUserEngine
             return null;
         }
 
-        var normalized = userId.Trim().ToLower();
-        return await _context.Users.FirstOrDefaultAsync(u => u.UserId.ToLower() == normalized);
+        var normalized = userId.Trim().ToUpper();
+        var appUser = await _context.Users.FirstOrDefaultAsync(u => u.NormalizedUserName == normalized || u.UserName == userId.Trim() || u.Id == userId.Trim());
+        return appUser != null ? new User { UserId = appUser.UserId } : null;
     }
 
     public async Task<User> CreateUserAsync(CreateUserDto dto)
@@ -50,19 +51,24 @@ public class UserEngine : IUserEngine
             throw new InvalidOperationException($"User with ID '{cleanUserId}' already exists.");
         }
 
-        var user = new User
+        var appUser = new ApplicationUser
         {
-            UserId = cleanUserId
+            Id = cleanUserId,
+            UserName = cleanUserId,
+            NormalizedUserName = cleanUserId.ToUpper(),
+            Email = $"{cleanUserId}@example.com",
+            NormalizedEmail = $"{cleanUserId.ToUpper()}@EXAMPLE.COM"
         };
 
-        _context.Users.Add(user);
+        _context.Users.Add(appUser);
         await _context.SaveChangesAsync();
 
-        return user;
+        return new User { UserId = appUser.UserId };
     }
 
     public async Task<IEnumerable<User>> GetAllUsersAsync()
     {
-        return await _context.Users.OrderBy(u => u.UserId).ToListAsync();
+        var appUsers = await _context.Users.OrderBy(u => u.UserName).ToListAsync();
+        return appUsers.Select(u => new User { UserId = u.UserId });
     }
 }

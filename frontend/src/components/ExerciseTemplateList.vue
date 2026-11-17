@@ -22,17 +22,10 @@ const props = defineProps({
 
 const emit = defineEmits(['user-change', 'refresh-templates'])
 
-const selectedUser = ref(props.users.length > 0 ? props.users[0].userId : 'tyler_dev')
-
-const handleUserChange = (newUserId) => {
-  selectedUser.value = newUserId
-  emit('user-change', newUserId)
-}
-
-const activeUser = computed(() => props.currentUserId || selectedUser.value)
+const activeUser = computed(() => props.currentUserId || (props.users.length > 0 ? props.users[0].userId : ''))
 
 const filteredTemplates = computed(() => {
-  if (!activeUser.value) return props.templates
+  if (!activeUser.value) return []
   return props.templates.filter(template => !template.userId || template.userId === activeUser.value)
 })
 </script>
@@ -53,7 +46,7 @@ const filteredTemplates = computed(() => {
 
         <div class="d-flex align-center ga-2">
           <v-chip
-            v-if="currentUserId"
+            v-if="activeUser"
             color="primary"
             variant="tonal"
             size="small"
@@ -61,19 +54,8 @@ const filteredTemplates = computed(() => {
             data-testid="exercise-list-user-chip"
           >
             <v-icon icon="mdi-account" start size="x-small"></v-icon>
-            Athlete: {{ currentUserId }}
+            Athlete: {{ activeUser }}
           </v-chip>
-          <v-select
-            v-else-if="users.length > 0"
-            :model-value="selectedUser"
-            :items="users.map(u => u.userId)"
-            label="Select User"
-            variant="outlined"
-            density="compact"
-            hide-details="auto"
-            style="min-width: 180px;"
-            @update:model-value="handleUserChange"
-          ></v-select>
 
           <v-btn
             icon="mdi-refresh"

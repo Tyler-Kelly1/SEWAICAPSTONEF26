@@ -18,11 +18,7 @@ const props = defineProps({
 
 const emit = defineEmits(['create-template'])
 
-const userId = ref(props.currentUserId || (props.users.length > 0 ? props.users[0].userId : 'tyler_dev'))
-watch(() => props.currentUserId, (newUserId) => {
-  if (newUserId) userId.value = newUserId
-})
-const effectiveUserId = computed(() => props.currentUserId || userId.value)
+const effectiveUserId = computed(() => props.currentUserId || (props.users.length > 0 ? props.users[0].userId : ''))
 const exerciseName = ref('')
 const minSet = ref(3)
 const maxSet = ref(5)

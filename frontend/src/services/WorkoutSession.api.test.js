@@ -48,7 +48,10 @@ describe('WorkoutSessionApi Service', () => {
     })
 
     await WorkoutSessionApi.getSessions('alex_fit')
-    expect(fetch).toHaveBeenCalledWith(expect.stringContaining('userId=alex_fit'))
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining('userId=alex_fit'),
+      expect.objectContaining({ credentials: 'include' })
+    )
   })
 
   it('createSession sends POST request with JSON payload', async () => {

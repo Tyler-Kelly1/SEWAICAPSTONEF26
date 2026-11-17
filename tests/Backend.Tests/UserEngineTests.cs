@@ -35,7 +35,7 @@ public class UserEngineTests
     public async Task CheckUserExistsAsync_WhenUserExists_ReturnsTrue()
     {
         // Arrange
-        _context.Users.Add(new User { UserId = "existing_user" });
+        _context.Users.Add(new ApplicationUser { Id = "existing_user", UserName = "existing_user", Email = "existing@example.com" });
         await _context.SaveChangesAsync();
 
         // Act
@@ -49,7 +49,7 @@ public class UserEngineTests
     public async Task CheckUserExistsAsync_CaseInsensitiveMatch_ReturnsTrue()
     {
         // Arrange
-        _context.Users.Add(new User { UserId = "Tyler_Dev" });
+        _context.Users.Add(new ApplicationUser { Id = "Tyler_Dev", UserName = "Tyler_Dev", NormalizedUserName = "TYLER_DEV", Email = "tyler@example.com" });
         await _context.SaveChangesAsync();
 
         // Act
@@ -82,7 +82,7 @@ public class UserEngineTests
     public async Task GetUserByIdAsync_WhenExists_ReturnsUser()
     {
         // Arrange
-        _context.Users.Add(new User { UserId = "test_athlete" });
+        _context.Users.Add(new ApplicationUser { Id = "test_athlete", UserName = "test_athlete", Email = "athlete@example.com" });
         await _context.SaveChangesAsync();
 
         // Act
@@ -125,7 +125,7 @@ public class UserEngineTests
     public async Task CreateUserAsync_UserAlreadyExists_ThrowsInvalidOperationException()
     {
         // Arrange
-        _context.Users.Add(new User { UserId = "already_here" });
+        _context.Users.Add(new ApplicationUser { Id = "already_here", UserName = "already_here", Email = "here@example.com" });
         await _context.SaveChangesAsync();
 
         var dto = new CreateUserDto { UserId = "already_here" };
@@ -150,9 +150,9 @@ public class UserEngineTests
     {
         // Arrange
         _context.Users.AddRange(
-            new User { UserId = "charlie" },
-            new User { UserId = "alice" },
-            new User { UserId = "bob" }
+            new ApplicationUser { Id = "charlie", UserName = "charlie", Email = "charlie@example.com" },
+            new ApplicationUser { Id = "alice", UserName = "alice", Email = "alice@example.com" },
+            new ApplicationUser { Id = "bob", UserName = "bob", Email = "bob@example.com" }
         );
         await _context.SaveChangesAsync();
 

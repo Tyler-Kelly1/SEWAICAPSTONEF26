@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import UserApi from '../services/User.api.js'
+import { ref } from 'vue'
+import AuthApi from '../services/Auth.api.js'
 import WelcomeLogin from '../components/WelcomeLogin.vue'
 import { useHashRouter } from '../router/index.js'
 
@@ -14,58 +14,42 @@ const props = defineProps({
 const emit = defineEmits(['login-success'])
 
 const router = useHashRouter()
-const users = ref([])
-const loadingUsers = ref(false)
+const isAuthenticating = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 
-const loadUsers = async () => {
-  loadingUsers.value = true
+const handleLogin = async ({ email, password, callback }) => {
+  errorMessage.value = ''
+  isAuthenticating.value = true
   try {
-    const list = await UserApi.getUsers()
-    users.value = list || []
+    const user = await AuthApi.login({ email, password })
+    callback({ success: true, user })
   } catch (err) {
-    console.warn('Could not load user list:', err)
+    callback({ error: err.message || 'Login failed.' })
   } finally {
-    loadingUsers.value = false
+    isAuthenticating.value = false
   }
 }
 
-const handleCheckUser = async ({ userId, callback }) => {
+const handleRegister = async ({ username, email, password, callback }) => {
   errorMessage.value = ''
+  isAuthenticating.value = true
   try {
-    const result = await UserApi.checkUserExists(userId)
-    callback({ exists: result.exists, userId: result.userId || userId })
+    const registered = await AuthApi.register({ username, email, password })
+    // Automatically log in following registration
+    const user = await AuthApi.login({ email, password })
+    callback({ success: true, user })
   } catch (err) {
-    console.error('Error verifying user ID:', err)
-    callback({ error: err.message || 'Failed to check user ID with backend.' })
-  }
-}
-
-const handleCreateUser = async ({ userId, callback }) => {
-  errorMessage.value = ''
-  try {
-    const created = await UserApi.createUser({ userId })
-    await loadUsers()
-    callback({ success: true, userId: created.userId || userId })
-  } catch (err) {
-    console.error('Error creating user:', err)
-    callback({ error: err.message || 'Failed to create user account.' })
+    callback({ error: err.message || 'Registration failed.' })
+  } finally {
+    isAuthenticating.value = false
   }
 }
 
 const handleLoginSuccess = (userId) => {
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem('userId', userId)
-    localStorage.setItem('overload_user_id', userId)
-  }
   emit('login-success', userId)
-  router.navigateTo('/')
+  router.navigateTo('/session')
 }
-
-onMounted(() => {
-  loadUsers()
-})
 </script>
 
 <template>
@@ -95,10 +79,9 @@ onMounted(() => {
     </v-alert>
 
     <WelcomeLogin
-      :existing-users="users"
-      :loading="loadingUsers"
-      @check-user="handleCheckUser"
-      @create-user="handleCreateUser"
+      :loading="isAuthenticating"
+      @login="handleLogin"
+      @register="handleRegister"
       @login-success="handleLoginSuccess"
     />
   </div>

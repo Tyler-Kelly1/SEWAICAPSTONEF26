@@ -22,8 +22,15 @@ const submitting = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 
-const activeUser = computed(() => props.currentUserId || 'tyler_dev')
+const activeUser = computed(() => props.currentUserId || '')
 const activeTab = ref('workout_templates')
+
+// Watch for user changes
+watch(() => props.currentUserId, (newId) => {
+  if (newId) {
+    loadData()
+  }
+})
 
 // Create Workout Template form
 const newWorkoutName = ref('')
@@ -41,20 +48,23 @@ const deletingTemplate = ref(null)
 
 const userWorkoutTemplates = computed(() => {
   const targetUser = activeUser.value
-  return workoutTemplates.value.filter(workoutTemplate => !workoutTemplate.userId || workoutTemplate.userId === targetUser)
+  return workoutTemplates.value.filter(workoutTemplate => 
+    workoutTemplate.workout_Name === 'Power Upper Body Workout' ||
+    (targetUser && workoutTemplate.userId === targetUser)
+  )
 })
 
 const loadData = async () => {
+  if (!activeUser.value) return
   loading.value = true
   errorMessage.value = ''
   const targetUser = activeUser.value
   try {
-    const [userData, wtData, etData] = await Promise.all([
-      UserApi.getUsers().catch(() => []),
+    const [wtData, etData] = await Promise.all([
       TemplateApi.getWorkoutTemplates(targetUser).catch(() => []),
       TemplateApi.getExerciseTemplates(targetUser).catch(() => [])
     ])
-    users.value = userData || []
+    users.value = [{ userId: targetUser }]
     
     // Provide baseline sample templates if backend returns empty list
     if (wtData && wtData.length > 0) {
@@ -63,8 +73,8 @@ const loadData = async () => {
       workoutTemplates.value = [
         {
           id: 1,
-          userId: targetUser,
-          workout_Name: 'Upper Body Power Template',
+          userId: null,
+          workout_Name: 'Power Upper Body Workout',
           exerciseTemplates: [
             {
               id: 1,
@@ -127,13 +137,51 @@ const loadData = async () => {
         },
         {
           id: 3,
+          exercise_Name: 'Barbell Back Squat',
+          min_Set: 3,
+          max_Set: 5,
+          weight_Step: 0.05,
+          volume_Step: 1,
+          setTemplates: [
+            { id: 6, min_Reps: 5, max_Reps: 8, failure_Set: false },
+            { id: 7, min_Reps: 5, max_Reps: 8, failure_Set: false },
+            { id: 8, min_Reps: 4, max_Reps: 8, failure_Set: true }
+          ]
+        },
+        {
+          id: 4,
+          exercise_Name: 'Romanian Deadlift',
+          min_Set: 3,
+          max_Set: 4,
+          weight_Step: 0.05,
+          volume_Step: 1,
+          setTemplates: [
+            { id: 9, min_Reps: 8, max_Reps: 12, failure_Set: false },
+            { id: 10, min_Reps: 8, max_Reps: 12, failure_Set: false }
+          ]
+        },
+        {
+          id: 5,
           exercise_Name: 'Overhead Press',
           min_Set: 3,
           max_Set: 4,
           weight_Step: 0.05,
           volume_Step: 1,
           setTemplates: [
-            { id: 6, min_Reps: 8, max_Reps: 12, failure_Set: false }
+            { id: 11, min_Reps: 6, max_Reps: 10, failure_Set: false },
+            { id: 12, min_Reps: 6, max_Reps: 10, failure_Set: false }
+          ]
+        },
+        {
+          id: 6,
+          exercise_Name: 'Incline Dumbbell Press',
+          min_Set: 3,
+          max_Set: 4,
+          weight_Step: 0.05,
+          volume_Step: 1,
+          setTemplates: [
+            { id: 13, min_Reps: 8, max_Reps: 12, failure_Set: false },
+            { id: 14, min_Reps: 8, max_Reps: 12, failure_Set: false }
           ]
         }
       ]
@@ -437,6 +485,7 @@ onMounted(() => {
                   prepend-icon="mdi-content-save"
                   :loading="submitting"
                   :disabled="!newWorkoutName.trim() || selectedExerciseIds.length === 0"
+                  @click="handleCreateWorkoutTemplate"
                 >
                   Create Workout Template
                 </v-btn>

@@ -275,3 +275,111 @@ This file records all AI prompts used during the development of this project in 
 ### [2026-09-29 18:33:11 -05:00] - User: tyler
 **Prompt:**
 > Write up a git commit and push to the repo
+
+### [2026-10-03 19:17:53 -05:00] - User: tyler
+**Prompt:**
+> open the current PR for main
+
+### [2026-10-03 19:20:01 -05:00] - User: tyler
+**Prompt:**
+> Perform a PR review on this code base with the following rules: 1. Do not factor in code complexitiy only functionality and intergration 2. Read all testing results. 3. Ask for my input on each module of the PR after presenting its case and highlighting its archetiature
+
+### [2026-10-03 19:29:26 -05:00] - User: tyler
+**Prompt:**
+> Go ahead and upload this report to PR and approve the PR for merge into main, be sure to include details on human archeticutre
+### [2026-10-18 19:11:43 -05:00] - User: tyler
+**Prompt:**
+> pull down the latest branch from main and merge with dashboard changes
+
+### [2026-10-18 19:12:20 -05:00] - User: tyler
+**Prompt:**
+> continue
+
+### [2026-10-18 19:37:02 -05:00] - User: tyler
+**Prompt:**
+> There is a bug where adding a workout template does not properly add to the database
+
+
+### [2026-10-26 10:25:16 -05:00] - User: tyler
+**Prompt:**
+> There is a visual bug on the log in screen causing a large white box on the bottom of the login screen
+
+### [2026-10-26 10:25:53 -05:00] - User: tyler
+**Prompt:**
+> Currently when starting a session, selecting a template does not list all avaible templates to choose from only one hard coded upper body power template
+
+
+### [2026-10-26 10:26:29 -05:00] - User: tyler
+**Prompt:**
+> How can I set AGY to auto edti
+
+### [2026-10-26 10:27:55 -05:00] - User: tyler
+**Prompt:**
+> can I only change the CLI from launch?
+
+
+### [2026-10-26 10:47:14 -05:00] - User: tyler
+**Prompt:**
+> Currently the application is broken after an attempt to fix a bug of not listing all workout templates, here is the error Uncaught ReferenceError: Cannot access 'applyWorkoutTemplate' before initialization
+    at watch.immediate (ActiveWorkoutSession.vue:46:5)
+    at callWithErrorHandling (vue.runtime.esm-bundler-B7xd3lIv.js?v=794be800:1936:17)
+    at callWithAsyncErrorHandling (vue.runtime.esm-bundler-B7xd3lIv.js?v=794be800:1943:15)
+    at baseWatchOptions.call (vue.runtime.esm-bundler-B7xd3lIv.js?v=794be800:2437:46)
+    at job (vue.runtime.esm-bundler-B7xd3lIv.js?v=794be800:1716:13)
+    at watch$1 (vue.runtime.esm-bundler-B7xd3lIv.js?v=794be800:1738:18)
+    at doWatch (vue.runtime.esm-bundler-B7xd3lIv.js?v=794be800:2459:22)
+    at watch (vue.runtime.esm-bundler-B7xd3lIv.js?v=794be800:2411:9)
+    at setup (ActiveWorkoutSession.vue:43:1)
+    at callWithErrorHandling (vue.runtime.esm-bundler-B7xd3lIv.js?v=794be800:1936:17)
+
+
+### [2026-10-26 11:06:05 -05:00] - User: tyler
+**Prompt:**
+> Ive added a new auth desgin doc to the documentation, this has all the info you need to implement a new auth system. This is a large task and will likely require several sub agents. Start by breaking down the design doc, researching, and creating an implemenation plan. Present this plan to me then I will leave feedback and you will begin implementation.
+
+
+### [2026-10-26 11:14:27 -05:00] - User: tyler
+**Prompt:**
+> [Approved] auth-implementation-plan.md
+
+
+### [2026-11-17 11:43:30 -06:00] - User: tyler
+**Prompt:**
+> What are the requirments for the auth system?
+
+
+### [2026-11-17 11:46:42 -06:00] - User: tyler
+**Prompt:**
+> 2, 3, and 4 are not configured properly, do not implement anything yet, read through the existing code base and answer the following questions. 1. Can any user see other users templates and sessions. 2. Does the overload engine check per user or only template previous use. 3. Are users allowed to start sessions for each other. Currently the implmentation is broken and allows for complete violation of users auth. Read through the code and report any breaking of these specific rules in addition to other bad or broken auth practices.
+
+
+### [2026-11-17 11:54:01 -06:00] - User: tyler
+**Prompt:**
+> /plan generate an implmentation plan to fix all of these broken or bad auth practices, if you have ANY questions ask me before procceding.
+
+
+### [2026-11-17 11:57:17 -06:00] - User: tyler
+**Prompt:**
+> Continue
+
+
+### [2026-11-17 11:57:41 -06:00] - User: tyler
+**Prompt:**
+> continue
+
+
+### [2026-11-17 12:16:36 -06:00] - User: tyler
+**Prompt:**
+> Ive just reviewed your plan everything looks good, however during this refactor also work on internal db secuirty, move DB Password and url to be injected via appsettings.devlopment.json and appsettings.production.json. Have appsettings be built/inject dynamically from a .env file. Add these to your plan, let me re-review then we will procced if things look good
+
+
+### [2026-11-17 12:20:55 -06:00] - User: tyler
+**Prompt:**
+> [Approved] auth-implementation-plan.md
+
+
+
+
+
+
+

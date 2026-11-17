@@ -5,86 +5,88 @@ import WelcomeLogin from './WelcomeLogin.vue'
 describe('WelcomeLogin.vue', () => {
   const defaultStubs = {
     'v-card': { template: '<div><slot /></div>' },
-    'v-card-text': { template: '<div><slot /></div>' },
-    'v-avatar': { template: '<div><slot /></div>' },
     'v-icon': true,
-    'v-divider': true,
-    'v-alert': { template: '<div><slot /></div>' },
-    'v-fade-transition': { template: '<div><slot /></div>' },
-    'v-form': { template: '<div><slot /></div>' },
-    'v-text-field': true,
-    'v-btn': { template: '<button><slot /></button>' },
-    'v-chip': { template: '<span><slot /></span>' }
+    'v-alert': { template: '<div><slot /></div>' }
   }
 
-  it('renders welcome message and input field', () => {
+  it('renders welcome message and login form by default', () => {
     const wrapper = mount(WelcomeLogin, {
-      global: { stubs: defaultStubs },
-      props: { existingUsers: [{ userId: 'tyler_dev' }] }
+      global: { stubs: defaultStubs }
     })
 
     expect(wrapper.text()).toContain('Welcome to Overload')
-    expect(wrapper.text()).toContain('Enter your User ID')
+    expect(wrapper.text()).toContain('ATHLETE EMAIL ADDRESS')
+    expect(wrapper.find('[data-testid="input-login-email"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="input-login-password"]').exists()).toBe(true)
   })
 
-  it('emits check-user event on continue', async () => {
+  it('switches between Login and Register tabs', async () => {
     const wrapper = mount(WelcomeLogin, {
       global: { stubs: defaultStubs }
     })
 
-    wrapper.vm.inputUserId = 'tyler_dev'
-    wrapper.vm.handleContinue()
+    const registerTab = wrapper.find('[data-testid="tab-register-mode"]')
+    await registerTab.trigger('click')
 
-    expect(wrapper.emitted('check-user')).toBeTruthy()
-    const checkCall = wrapper.emitted('check-user')[0][0]
-    expect(checkCall.userId).toBe('tyler_dev')
-    expect(typeof checkCall.callback).toBe('function')
+    expect(wrapper.vm.activeMode).toBe('register')
+    expect(wrapper.find('[data-testid="input-register-username"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="input-register-email"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="input-register-password"]').exists()).toBe(true)
   })
 
-  it('emits login-success if check callback indicates user exists', async () => {
+  it('emits login event on valid login submission', async () => {
     const wrapper = mount(WelcomeLogin, {
       global: { stubs: defaultStubs }
     })
 
-    wrapper.vm.inputUserId = 'tyler_dev'
-    wrapper.vm.handleContinue()
+    wrapper.vm.loginEmail = 'tyler@example.com'
+    wrapper.vm.loginPassword = 'Password123!'
+    wrapper.vm.handleLoginSubmit()
 
-    const checkCall = wrapper.emitted('check-user')[0][0]
-    checkCall.callback({ exists: true, userId: 'tyler_dev' })
+    expect(wrapper.emitted('login')).toBeTruthy()
+    const loginCall = wrapper.emitted('login')[0][0]
+    expect(loginCall.email).toBe('tyler@example.com')
+    expect(loginCall.password).toBe('Password123!')
+    expect(typeof loginCall.callback).toBe('function')
+  })
+
+  it('emits login-success when login callback succeeds', async () => {
+    const wrapper = mount(WelcomeLogin, {
+      global: { stubs: defaultStubs }
+    })
+
+    wrapper.vm.loginEmail = 'tyler@example.com'
+    wrapper.vm.loginPassword = 'Password123!'
+    wrapper.vm.handleLoginSubmit()
+
+    const loginCall = wrapper.emitted('login')[0][0]
+    loginCall.callback({ success: true, user: { userId: 'tyler_dev' } })
 
     expect(wrapper.emitted('login-success')).toBeTruthy()
     expect(wrapper.emitted('login-success')[0][0]).toBe('tyler_dev')
   })
 
-  it('sets userNotFound to true if check callback indicates user does not exist', async () => {
+  it('emits register event on valid account creation submission', async () => {
     const wrapper = mount(WelcomeLogin, {
       global: { stubs: defaultStubs }
     })
 
-    wrapper.vm.inputUserId = 'brand_new_user'
-    wrapper.vm.handleContinue()
+    wrapper.vm.switchMode('register')
+    wrapper.vm.registerUsername = 'new_lifter'
+    wrapper.vm.registerEmail = 'new@example.com'
+    wrapper.vm.registerPassword = 'Password123!'
+    wrapper.vm.registerConfirmPassword = 'Password123!'
 
-    const checkCall = wrapper.emitted('check-user')[0][0]
-    checkCall.callback({ exists: false, userId: 'brand_new_user' })
+    wrapper.vm.handleRegisterSubmit()
 
-    expect(wrapper.vm.userNotFound).toBe(true)
-    expect(wrapper.vm.pendingUserId).toBe('brand_new_user')
-  })
+    expect(wrapper.emitted('register')).toBeTruthy()
+    const regCall = wrapper.emitted('register')[0][0]
+    expect(regCall.username).toBe('new_lifter')
+    expect(regCall.email).toBe('new@example.com')
+    expect(regCall.password).toBe('Password123!')
 
-  it('emits create-user event when creating account', async () => {
-    const wrapper = mount(WelcomeLogin, {
-      global: { stubs: defaultStubs }
-    })
-
-    wrapper.vm.pendingUserId = 'brand_new_user'
-    wrapper.vm.handleCreateAccount()
-
-    expect(wrapper.emitted('create-user')).toBeTruthy()
-    const createCall = wrapper.emitted('create-user')[0][0]
-    expect(createCall.userId).toBe('brand_new_user')
-
-    createCall.callback({ success: true, userId: 'brand_new_user' })
+    regCall.callback({ success: true, user: { userId: 'new_lifter' } })
     expect(wrapper.emitted('login-success')).toBeTruthy()
-    expect(wrapper.emitted('login-success')[0][0]).toBe('brand_new_user')
+    expect(wrapper.emitted('login-success')[0][0]).toBe('new_lifter')
   })
 })

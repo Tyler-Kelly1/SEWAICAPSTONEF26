@@ -1,7 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import SessionApi from '../services/Session.api.js'
-import UserApi from '../services/User.api.js'
 import ActiveWorkoutSession from '../components/ActiveWorkoutSession.vue'
 import { useHashRouter } from '../router/index.js'
 
@@ -31,16 +30,31 @@ const submitting = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 
-const selectedUser = ref(props.currentUserId || 'tyler_dev')
+const activeUserId = computed(() => props.currentUserId || '')
+
 watch(() => props.currentUserId, (newUserId) => {
-  if (newUserId) selectedUser.value = newUserId
+  if (newUserId) {
+    loadSessionData()
+  }
 })
 
-const getBaselineWorkoutTemplates = (userId) => [
+watch(() => props.workoutTemplates, (newTemplates) => {
+  if (newTemplates && newTemplates.length > 0) {
+    activeWorkoutTemplates.value = newTemplates
+  }
+}, { immediate: true })
+
+watch(() => props.exerciseTemplates, (newTemplates) => {
+  if (newTemplates && newTemplates.length > 0) {
+    activeExerciseTemplates.value = newTemplates
+  }
+}, { immediate: true })
+
+const getBaselineWorkoutTemplates = () => [
   {
     id: 1,
-    userId: userId || 'tyler_dev',
-    workout_Name: 'Upper Body Power Template',
+    userId: null,
+    workout_Name: 'Power Upper Body Workout',
     exerciseTemplates: [
       {
         id: 1,
@@ -73,43 +87,47 @@ const getBaselineWorkoutTemplates = (userId) => [
 
 const getBaselineExerciseTemplates = () => [
   { id: 1, exercise_Name: 'Barbell Bench Press', min_Set: 3, max_Set: 5 },
-  { id: 2, exercise_Name: 'Bent Over Row', min_Set: 3, max_Set: 4 }
+  { id: 2, exercise_Name: 'Bent Over Row', min_Set: 3, max_Set: 4 },
+  { id: 3, exercise_Name: 'Barbell Back Squat', min_Set: 3, max_Set: 5 },
+  { id: 4, exercise_Name: 'Romanian Deadlift', min_Set: 3, max_Set: 4 },
+  { id: 5, exercise_Name: 'Overhead Press', min_Set: 3, max_Set: 4 },
+  { id: 6, exercise_Name: 'Incline Dumbbell Press', min_Set: 3, max_Set: 4 }
 ]
 
 const resolveActiveWorkoutTemplates = (fetchedTemplates) => {
+  if (fetchedTemplates && fetchedTemplates.length > 0) {
+    return fetchedTemplates
+  }
   if (props.workoutTemplates && props.workoutTemplates.length > 0) {
     return props.workoutTemplates
   }
-  if (fetchedTemplates && fetchedTemplates.length > 0) {
-    return fetchedTemplates
-  }
-  return getBaselineWorkoutTemplates(selectedUser.value)
+  return getBaselineWorkoutTemplates()
 }
 
 const resolveActiveExerciseTemplates = (fetchedTemplates) => {
-  if (props.exerciseTemplates && props.exerciseTemplates.length > 0) {
-    return props.exerciseTemplates
-  }
   if (fetchedTemplates && fetchedTemplates.length > 0) {
     return fetchedTemplates
+  }
+  if (props.exerciseTemplates && props.exerciseTemplates.length > 0) {
+    return props.exerciseTemplates
   }
   return getBaselineExerciseTemplates()
 }
 
 const fetchSessionDependencies = async (userId) => {
   return await Promise.all([
-    UserApi.getUsers().catch(() => []),
     SessionApi.getWorkoutTemplates(userId).catch(() => []),
     SessionApi.getExerciseTemplates(userId).catch(() => [])
   ])
 }
 
 const loadSessionData = async () => {
+  if (!activeUserId.value) return
   loading.value = true
   errorMessage.value = ''
   try {
-    const [userData, fetchedWorkoutTemplates, fetchedExerciseTemplates] = await fetchSessionDependencies(selectedUser.value)
-    users.value = userData || []
+    const [fetchedWorkoutTemplates, fetchedExerciseTemplates] = await fetchSessionDependencies(activeUserId.value)
+    users.value = [{ userId: activeUserId.value }]
     activeWorkoutTemplates.value = resolveActiveWorkoutTemplates(fetchedWorkoutTemplates)
     activeExerciseTemplates.value = resolveActiveExerciseTemplates(fetchedExerciseTemplates)
   } catch (error) {
@@ -120,10 +138,10 @@ const loadSessionData = async () => {
   }
 }
 
-const handleFetchGoalSets = async ({ userId, exerciseName, exerciseTemplateId, callback }) => {
+const handleFetchGoalSets = async ({ exerciseName, exerciseTemplateId, callback }) => {
   try {
     const goalData = await SessionApi.getGoalSets({
-      userId: userId || selectedUser.value,
+      userId: activeUserId.value,
       exerciseName,
       exerciseTemplateId,
       sets: []
@@ -144,7 +162,7 @@ const handleSaveSession = async (sessionPayload) => {
   try {
     const payload = {
       ...sessionPayload,
-      userId: sessionPayload.userId || selectedUser.value
+      userId: activeUserId.value
     }
     const saved = await SessionApi.createSession(payload)
     successMessage.value = `Workout Session #${saved.id} successfully recorded!`
@@ -229,7 +247,7 @@ onMounted(() => {
       :templates="activeExerciseTemplates"
       :workout-templates="activeWorkoutTemplates"
       :submitting="submitting"
-      :current-user-id="selectedUser"
+      :current-user-id="activeUserId"
       @fetch-goal-sets="handleFetchGoalSets"
       @save-session="handleSaveSession"
     />

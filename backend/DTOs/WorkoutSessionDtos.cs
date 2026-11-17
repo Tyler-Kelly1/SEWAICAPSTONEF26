@@ -138,3 +138,53 @@ public class ExerciseGoalResponseDto
     public List<GoalSetDto> GoalSets { get; set; } = new();
 }
 
+public class CreateSetTemplateDto
+{
+    public bool Failure_Set { get; set; }
+
+    [Range(1, 1000, ErrorMessage = "Max reps must be between 1 and 1000.")]
+    public int Max_Reps { get; set; } = 10;
+
+    [Range(1, 1000, ErrorMessage = "Min reps must be between 1 and 1000.")]
+    public int Min_Reps { get; set; } = 6;
+}
+
+public class CreateExerciseTemplateDto
+{
+    public int? Id { get; set; }
+
+    public string? UserId { get; set; }
+
+    [Required(ErrorMessage = "Exercise name is required.")]
+    [StringLength(100, ErrorMessage = "Exercise name cannot exceed 100 characters.")]
+    public string Exercise_Name { get; set; } = string.Empty;
+
+    [Range(1, 100, ErrorMessage = "Min sets must be between 1 and 100.")]
+    public int Min_Set { get; set; } = 3;
+
+    [Range(1, 100, ErrorMessage = "Max sets must be between 1 and 100.")]
+    public int Max_Set { get; set; } = 5;
+
+    [Range(0.001, 1.0, ErrorMessage = "Weight step must be between 0.001 and 1.0.")]
+    public decimal Weight_Step { get; set; } = 0.05m;
+
+    [Range(1, 100, ErrorMessage = "Volume step must be between 1 and 100.")]
+    public int Volume_Step { get; set; } = 1;
+
+    public int? WorkoutTemplateId { get; set; }
+
+    public List<CreateSetTemplateDto>? SetTemplates { get; set; } = new();
+}
+
+public class CreateWorkoutTemplateDto
+{
+    public string? UserId { get; set; }
+
+    [Required(ErrorMessage = "Workout template name is required.")]
+    [StringLength(100, ErrorMessage = "Workout template name cannot exceed 100 characters.")]
+    public string Workout_Name { get; set; } = string.Empty;
+
+    public List<CreateExerciseTemplateDto>? ExerciseTemplates { get; set; } = new();
+}
+
+

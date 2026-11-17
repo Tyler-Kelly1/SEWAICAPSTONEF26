@@ -26,10 +26,7 @@ const props = defineProps({
 
 const emit = defineEmits(['fetch-goal-sets', 'save-session'])
 
-const selectedUser = ref(props.currentUserId || (props.users.length > 0 ? props.users[0].userId : 'tyler_dev'))
-watch(() => props.currentUserId, (newUserId) => {
-  if (newUserId) selectedUser.value = newUserId
-})
+const activeUserId = computed(() => props.currentUserId || (props.users.length > 0 ? props.users[0].userId : ''))
 const selectedWorkoutTemplateId = ref(null)
 const workoutName = ref('Push Day Session')
 const sessionStarted = ref(false)
@@ -39,13 +36,6 @@ const startTime = ref(null)
 const userWorkoutTemplates = computed(() => {
   return props.workoutTemplates
 })
-
-watch(() => props.workoutTemplates, (newTemplates) => {
-  if (newTemplates && newTemplates.length > 0 && !selectedWorkoutTemplateId.value) {
-    selectedWorkoutTemplateId.value = newTemplates[0].id || newTemplates[0].workout_Name
-    applyWorkoutTemplate(selectedWorkoutTemplateId.value)
-  }
-}, { immediate: true })
 
 // Exercise structure for active session
 const exercises = ref([
@@ -69,9 +59,13 @@ const exercises = ref([
   }
 ])
 
-const applyWorkoutTemplate = (templateId) => {
+function applyWorkoutTemplate(templateId) {
   if (!templateId) return
-  const matchedWorkoutTemplate = props.workoutTemplates.find(template => (template.id || template.workout_Name) === templateId)
+  const matchedWorkoutTemplate = props.workoutTemplates.find(template => 
+    template.id === templateId || 
+    String(template.id) === String(templateId) || 
+    template.workout_Name === templateId
+  )
   if (!matchedWorkoutTemplate) return
 
   workoutName.value = matchedWorkoutTemplate.workout_Name
@@ -98,6 +92,13 @@ const applyWorkoutTemplate = (templateId) => {
     })
   }
 }
+
+watch(() => props.workoutTemplates, (newTemplates) => {
+  if (newTemplates && newTemplates.length > 0 && !selectedWorkoutTemplateId.value) {
+    selectedWorkoutTemplateId.value = newTemplates[0].id || newTemplates[0].workout_Name
+    applyWorkoutTemplate(selectedWorkoutTemplateId.value)
+  }
+}, { immediate: true })
 
 const addExercise = () => {
   exercises.value.push({
@@ -132,6 +133,7 @@ const isSetEnabled = (exIndex, setIndex) => {
 }
 
 const startSession = () => {
+  if (!activeUserId.value) return
   sessionStarted.value = true
   startTime.value = new Date()
 
@@ -150,7 +152,7 @@ const fetchGoalWeightForExercise = async (exerciseIndex) => {
   }
 
   emit('fetch-goal-sets', {
-    userId: selectedUser.value,
+    userId: activeUserId.value,
     exerciseName: targetExercise.name,
     exerciseTemplateId: targetExercise.templateId,
     callback: (goalResponse) => {
@@ -181,7 +183,7 @@ const completeSet = (exerciseIndex, setIndex) => {
 const finishWorkout = () => {
   const endTime = new Date()
   const payload = {
-    userId: selectedUser.value,
+    userId: activeUserId.value,
     workoutName: workoutName.value || 'Workout Session',
     startTime: startTime.value ? startTime.value.toISOString() : new Date().toISOString(),
     endTime: endTime.toISOString(),
@@ -243,13 +245,16 @@ const finishWorkout = () => {
       <v-form v-if="!sessionStarted" @submit.prevent="startSession">
         <v-row align="center">
           <v-col cols="12" md="4">
-            <v-select
-              v-model="selectedUser"
-              :items="users.map(u => u.userId)"
-              label="Select User"
+            <v-text-field
+              :model-value="activeUserId"
+              label="Athlete"
               variant="outlined"
               density="compact"
-            ></v-select>
+              readonly
+              disabled
+              prepend-inner-icon="mdi-account"
+              data-testid="active-session-athlete-input"
+            ></v-text-field>
           </v-col>
 
           <v-col cols="12" md="4">
@@ -330,7 +335,7 @@ const finishWorkout = () => {
       <div v-else>
         <div class="d-flex align-center justify-space-between mb-4">
           <div class="text-subtitle-1 font-weight-bold text-primary">
-            User: <strong>{{ selectedUser }}</strong> &bull; {{ workoutName }}
+            Athlete: <strong>{{ activeUserId }}</strong> &bull; {{ workoutName }}
           </div>
         </div>
 

@@ -1,16 +1,54 @@
 using Backend.Data;
 using Backend.Engines;
+using Backend.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-    ?? "Host=localhost;Port=5432;Database=overloaddb;Username=postgres;Password=postgrespassword";
+// Load .env configuration and inject dynamically
+var envVars = EnvConfigurationHelper.LoadEnv(builder.Environment.ContentRootPath);
+if (envVars.Count > 0)
+{
+    builder.Configuration.AddInMemoryCollection(envVars);
+}
+
+// Add services to the container with injected connection string
+var connectionString = EnvConfigurationHelper.GetDatabaseConnectionString(builder.Configuration);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
+// Configure ASP.NET Core Identity with ApplicationUser
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    options.Password.RequireDigit = false;
+    options.Password.RequiredLength = 6;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+    options.User.RequireUniqueEmail = true;
+})
+.AddEntityFrameworkStores<AppDbContext>()
+.AddDefaultTokenProviders();
+
+// Configure 24-hour cookie authentication with sliding expiration
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Name = "OverloadAuth";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.ExpireTimeSpan = TimeSpan.FromHours(24);
+    options.SlidingExpiration = true;
+    options.Events.OnRedirectToLogin = context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        return Task.CompletedTask;
+    };
+});
+
+builder.Services.AddScoped<IAuthEngine, AuthEngine>();
 builder.Services.AddScoped<IWorkoutSessionEngine, WorkoutSessionEngine>();
 builder.Services.AddScoped<IOverloadEngine, OverloadEngine>();
 builder.Services.AddScoped<IUserEngine, UserEngine>();
@@ -20,14 +58,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configure CORS for Vue Vite frontend
+// Configure CORS for Vue Vite frontend with credential support
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
@@ -66,6 +105,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowFrontend");
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

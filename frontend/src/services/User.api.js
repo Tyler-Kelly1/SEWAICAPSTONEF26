@@ -8,7 +8,9 @@ const UserApi = {
       return { exists: false, userId: '' }
     }
     const cleanId = userId.trim()
-    const response = await fetch(`${API_BASE_URL}/exists/${encodeURIComponent(cleanId)}`)
+    const response = await fetch(`${API_BASE_URL}/exists/${encodeURIComponent(cleanId)}`, {
+      credentials: 'include'
+    })
     if (!response.ok) {
       const errorText = await response.text()
       throw new Error(errorText || `Failed to check user ID (HTTP ${response.status})`)
@@ -21,7 +23,9 @@ const UserApi = {
       throw new Error('User ID is required.')
     }
     const cleanId = userId.trim()
-    const response = await fetch(`${API_BASE_URL}/${encodeURIComponent(cleanId)}`)
+    const response = await fetch(`${API_BASE_URL}/${encodeURIComponent(cleanId)}`, {
+      credentials: 'include'
+    })
     if (!response.ok) {
       const errorText = await response.text()
       throw new Error(errorText || `Failed to fetch user (HTTP ${response.status})`)
@@ -40,6 +44,7 @@ const UserApi = {
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify({ userId: userId.trim() })
     })
 
@@ -52,7 +57,9 @@ const UserApi = {
   },
 
   async getUsers() {
-    const response = await fetch(API_BASE_URL)
+    const response = await fetch(API_BASE_URL, {
+      credentials: 'include'
+    })
     if (!response.ok) {
       const errorText = await response.text()
       throw new Error(errorText || `Failed to fetch users (HTTP ${response.status})`)

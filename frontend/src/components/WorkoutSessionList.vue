@@ -22,16 +22,9 @@ const props = defineProps({
 
 const emit = defineEmits(['refresh'])
 
-const selectedUserFilter = ref(props.currentUserId || null)
-watch(() => props.currentUserId, (newUserId) => {
-  if (newUserId) selectedUserFilter.value = newUserId
-})
-
 const filteredSessions = computed(() => {
-  if (!selectedUserFilter.value) {
-    return props.sessions
-  }
-  return props.sessions.filter(session => session.userId === selectedUserFilter.value)
+  if (!props.currentUserId) return []
+  return props.sessions.filter(session => session.userId === props.currentUserId)
 })
 
 const formatDate = (isoString) => {
@@ -67,25 +60,17 @@ const formatDuration = (durationStr) => {
           </v-card-subtitle>
         </div>
         <div class="d-flex align-center ga-2">
-          <v-btn-toggle
-            v-model="selectedUserFilter"
-            density="compact"
+          <v-chip
+            v-if="currentUserId"
             color="primary"
-            variant="outlined"
-            mandatory="false"
-            class="rounded-0"
+            variant="tonal"
+            size="small"
+            class="rounded-0 font-weight-bold"
+            data-testid="session-list-user-chip"
           >
-            <v-btn :value="null" size="small" class="rounded-0">All Users</v-btn>
-            <v-btn
-              v-for="user in users"
-              :key="user.userId"
-              :value="user.userId"
-              size="small"
-              class="rounded-0"
-            >
-              {{ user.userId }}
-            </v-btn>
-          </v-btn-toggle>
+            <v-icon icon="mdi-account" start size="x-small"></v-icon>
+            Athlete: {{ currentUserId }}
+          </v-chip>
           <v-btn
             icon="mdi-refresh"
             variant="text"

@@ -1,7 +1,9 @@
+using System.Security.Claims;
 using Backend.Controllers;
 using Backend.DTOs;
 using Backend.Engines;
 using Backend.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,13 +13,26 @@ namespace Backend.Tests;
 public class UserControllerTests
 {
     private FakeUserEngine _fakeEngine = null!;
+    private FakeAuthEngine _fakeAuth = null!;
     private UserController _controller = null!;
 
     [TestInitialize]
     public void Setup()
     {
         _fakeEngine = new FakeUserEngine();
-        _controller = new UserController(_fakeEngine);
+        _fakeAuth = new FakeAuthEngine();
+        _controller = new UserController(_fakeEngine, _fakeAuth);
+
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        {
+            new Claim(ClaimTypes.Name, "lifter1"),
+            new Claim(ClaimTypes.NameIdentifier, "lifter1")
+        }, "TestAuth"));
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = user }
+        };
     }
 
     [TestMethod]
@@ -54,7 +69,7 @@ public class UserControllerTests
     }
 
     [TestMethod]
-    public async Task GetUserById_WhenExists_ReturnsOkWithUser()
+    public async Task GetUserById_WhenExistsAndAuthorized_ReturnsOkWithUser()
     {
         // Arrange
         await _fakeEngine.CreateUserAsync(new CreateUserDto { UserId = "lifter1" });
@@ -71,57 +86,26 @@ public class UserControllerTests
     }
 
     [TestMethod]
-    public async Task GetUserById_WhenDoesNotExist_ReturnsNotFound()
+    public async Task GetUserById_WhenAccessingOtherUser_ReturnsForbid()
     {
         // Act
-        var result = await _controller.GetUserById("nonexistent");
+        var result = await _controller.GetUserById("other_lifter");
 
         // Assert
-        Assert.IsInstanceOfType(result.Result, typeof(NotFoundObjectResult));
+        Assert.IsInstanceOfType(result.Result, typeof(ForbidResult));
     }
 
     [TestMethod]
-    public async Task CreateUser_ValidDto_ReturnsCreatedAtAction()
+    public void CreateUser_ReturnsBadRequest_DirectingToRegister()
     {
         // Arrange
         var dto = new CreateUserDto { UserId = "new_user" };
 
         // Act
-        var result = await _controller.CreateUser(dto);
+        var result = _controller.CreateUser(dto);
 
         // Assert
-        Assert.IsInstanceOfType(result.Result, typeof(CreatedAtActionResult));
-        var createdResult = (CreatedAtActionResult)result.Result!;
-        var user = createdResult.Value as User;
-        Assert.IsNotNull(user);
-        Assert.AreEqual("new_user", user.UserId);
-    }
-
-    [TestMethod]
-    public async Task CreateUser_WhenUserAlreadyExists_ReturnsConflict()
-    {
-        // Arrange
-        await _fakeEngine.CreateUserAsync(new CreateUserDto { UserId = "duplicate" });
-        var dto = new CreateUserDto { UserId = "duplicate" };
-
-        // Act
-        var result = await _controller.CreateUser(dto);
-
-        // Assert
-        Assert.IsInstanceOfType(result.Result, typeof(ConflictObjectResult));
-    }
-
-    [TestMethod]
-    public async Task CreateUser_EmptyUserId_ReturnsBadRequest()
-    {
-        // Arrange
-        var dto = new CreateUserDto { UserId = "" };
-
-        // Act
-        var result = await _controller.CreateUser(dto);
-
-        // Assert
-        Assert.IsInstanceOfType(result.Result, typeof(BadRequestObjectResult));
+        Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
     }
 }
 
@@ -145,18 +129,7 @@ public class FakeUserEngine : IUserEngine
 
     public Task<User> CreateUserAsync(CreateUserDto dto)
     {
-        if (string.IsNullOrWhiteSpace(dto.UserId))
-        {
-            throw new ArgumentException("User ID is required.");
-        }
-
-        var clean = dto.UserId.Trim();
-        if (_users.Any(u => u.UserId.Equals(clean, StringComparison.OrdinalIgnoreCase)))
-        {
-            throw new InvalidOperationException($"User with ID '{clean}' already exists.");
-        }
-
-        var user = new User { UserId = clean };
+        var user = new User { UserId = dto.UserId };
         _users.Add(user);
         return Task.FromResult(user);
     }

@@ -26,11 +26,7 @@ const props = defineProps({
 
 const emit = defineEmits(['create-workout-template'])
 
-const selectedUser = ref(props.currentUserId || (props.users.length > 0 ? props.users[0].userId : 'tyler_dev'))
-watch(() => props.currentUserId, (newUserId) => {
-  if (newUserId) selectedUser.value = newUserId
-})
-const activeUser = computed(() => props.currentUserId || selectedUser.value)
+const activeUser = computed(() => props.currentUserId || (props.users.length > 0 ? props.users[0].userId : ''))
 const workoutName = ref('')
 const selectedExerciseIds = ref([])
 
@@ -41,7 +37,10 @@ const userExerciseTemplates = computed(() => {
 
 // Filtered workout templates for selected user
 const filteredWorkoutTemplates = computed(() => {
-  return props.workoutTemplates.filter(workoutTemplate => !workoutTemplate.userId || workoutTemplate.userId === activeUser.value)
+  return props.workoutTemplates.filter(workoutTemplate => 
+    workoutTemplate.workout_Name === 'Power Upper Body Workout' || 
+    (activeUser.value && workoutTemplate.userId === activeUser.value)
+  )
 })
 
 const handleSubmit = () => {
@@ -85,7 +84,7 @@ const handleSubmit = () => {
         </div>
 
         <v-chip
-          v-if="currentUserId"
+          v-if="activeUser"
           color="primary"
           variant="tonal"
           size="small"
@@ -93,18 +92,8 @@ const handleSubmit = () => {
           data-testid="workout-manager-user-chip"
         >
           <v-icon icon="mdi-account" start size="x-small"></v-icon>
-          Athlete: {{ currentUserId }}
+          Athlete: {{ activeUser }}
         </v-chip>
-        <v-select
-          v-else-if="users.length > 0"
-          v-model="selectedUser"
-          :items="users.map(u => u.userId)"
-          label="Selected User"
-          variant="outlined"
-          density="compact"
-          hide-details
-          style="min-width: 180px;"
-        ></v-select>
       </div>
     </v-card-item>
 
@@ -173,7 +162,7 @@ const handleSubmit = () => {
 
       <div v-if="filteredWorkoutTemplates.length === 0" class="text-center py-6 text-grey">
         <v-icon icon="mdi-text-box-remove-outline" size="40" class="d-block mx-auto mb-2"></v-icon>
-        No workout templates created for {{ selectedUser }} yet. Create one above!
+        No workout templates created for {{ activeUser }} yet. Create one above!
       </div>
 
       <v-row v-else>

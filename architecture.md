@@ -121,7 +121,7 @@ Service Layer ((PageName).api.js) ➔ Parent Component ➔ Child Component
 
 | Date | User | Feature / Flow | User Choice | Justification |
 | :--- | :--- | :--- | :--- | :--- |
-| *N/A* | - | *No multi-generation (>3 levels) component flows created yet* | - | - |
+| 2026-10-03 | tyler | Dashboard Statistics & Service Layer | FE Props Aggregation (Current) / Dedicated Service & Backend Aggregation (Future) | Solid approach for current milestone. Moving forward we will move dashboard API logic into a separate service layer module (`Dashboard.api.js`) and do heavy statistics in the Backend. |
 
 ---
 
@@ -153,6 +153,9 @@ Service Layer ((PageName).api.js) ➔ Parent Component ➔ Child Component
 | 2026-09-14 | tyler | `@vue/test-utils` | npm (Frontend) | ^2.5.0 | Official Vue 3 component testing utilities for Vitest. |
 | 2026-09-14 | tyler | `jsdom` | npm (Frontend) | ^29.1.1 | DOM environment implementation for Vitest unit testing. |
 | 2026-09-29 | tyler | `sass-embedded` | npm (Frontend) | ^1.105.1 | Required by Vite to compile SCSS styles (<style lang="scss">) for custom Vue components with paper notebook styling. |
+| 2026-10-03 | tyler | `@vitest/coverage-v8` | npm (Frontend) | ^5.0.0 | Code coverage reporting provider for Vitest frontend unit tests. |
+| 2026-10-26 | tyler | `Microsoft.AspNetCore.Identity.EntityFrameworkCore` | NuGet (Backend) | 10.0.12 | Required for ASP.NET Core Identity with PostgreSQL/EF Core to manage users, password hashing, and auto-migrated identity tables. |
+
 
 
 

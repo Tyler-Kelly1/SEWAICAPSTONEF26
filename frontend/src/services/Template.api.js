@@ -17,7 +17,7 @@ const TemplateApi = {
     const activeUserId = getStoredUserId(userId)
     const url = activeUserId ? `${API_BASE_URL}/workout-templates?userId=${encodeURIComponent(activeUserId)}` : `${API_BASE_URL}/workout-templates`
     try {
-      const response = await fetch(url)
+      const response = await fetch(url, { credentials: 'include' })
       if (response.ok) {
         return await response.json()
       }
@@ -40,6 +40,7 @@ const TemplateApi = {
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(payload)
       })
 
@@ -70,6 +71,7 @@ const TemplateApi = {
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(payload)
       })
 
@@ -86,7 +88,8 @@ const TemplateApi = {
   async deleteWorkoutTemplate(id) {
     try {
       const response = await fetch(`${API_BASE_URL}/workout-templates/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include'
       })
 
       if (response.ok) {
@@ -103,7 +106,7 @@ const TemplateApi = {
     const activeUserId = getStoredUserId(userId)
     const url = activeUserId ? `${API_BASE_URL}/templates?userId=${encodeURIComponent(activeUserId)}` : `${API_BASE_URL}/templates`
     try {
-      const response = await fetch(url)
+      const response = await fetch(url, { credentials: 'include' })
       if (response.ok) {
         return await response.json()
       }
@@ -126,6 +129,7 @@ const TemplateApi = {
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(payload)
       })
 

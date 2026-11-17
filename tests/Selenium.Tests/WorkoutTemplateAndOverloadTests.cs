@@ -22,7 +22,7 @@ public class WorkoutTemplateAndOverloadTests
         {
             using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
             var response = client.GetAsync(url).GetAwaiter().GetResult();
-            return response.IsSuccessStatusCode;
+            return response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.Unauthorized;
         }
         catch
         {
@@ -82,6 +82,32 @@ public class WorkoutTemplateAndOverloadTests
         Thread.Sleep(150);
     }
 
+    private void SafeClick(IWebElement element)
+    {
+        if (_driver is IJavaScriptExecutor js)
+        {
+            js.ExecuteScript("arguments[0].scrollIntoView({ block: 'center' });", element);
+        }
+        Thread.Sleep(200);
+
+        try
+        {
+            element.Click();
+        }
+        catch (Exception)
+        {
+            if (_driver is IJavaScriptExecutor jsExec)
+            {
+                jsExec.ExecuteScript("arguments[0].click();", element);
+            }
+            else
+            {
+                throw;
+            }
+        }
+        Thread.Sleep(300);
+    }
+
     private void SelectVuetifyOption(By selectLocator, string optionText, WebDriverWait wait)
     {
         var selectElement = wait.Until(d => d.FindElement(selectLocator));
@@ -125,11 +151,22 @@ public class WorkoutTemplateAndOverloadTests
         new OpenQA.Selenium.Interactions.Actions(_driver).MoveToElement(option).Click().Perform();
         Thread.Sleep(300);
 
-        // Press Escape to dismiss any residual overlay
+        // Dismiss the dropdown overlay menu by clicking scrim or body and sending Escape
         try
         {
-            _driver?.FindElement(By.TagName("body")).SendKeys(Keys.Escape);
-            Thread.Sleep(200);
+            if (_driver is IJavaScriptExecutor jsExec)
+            {
+                jsExec.ExecuteScript(@"
+                    var scrim = document.querySelector('.v-overlay--active .v-overlay__scrim');
+                    if (scrim) {
+                        scrim.click();
+                    } else {
+                        document.body.click();
+                    }
+                ");
+            }
+            new OpenQA.Selenium.Interactions.Actions(_driver).SendKeys(Keys.Escape).Perform();
+            Thread.Sleep(300);
         }
         catch
         {
@@ -137,22 +174,38 @@ public class WorkoutTemplateAndOverloadTests
         }
     }
 
-    private void EnsureLoggedIn(string userId = "tyler_dev")
+    private void EnsureLoggedIn(string emailOrUserId = "tyler@example.com", string password = "Password123!")
     {
+        var email = emailOrUserId;
+        if (!email.Contains("@"))
+        {
+            email = emailOrUserId == "tyler_dev" ? "tyler@example.com" : $"{emailOrUserId}@example.com";
+        }
+
         try
         {
-            var loginInputs = _driver!.FindElements(By.CssSelector("[data-testid='input-user-id'] input, [data-testid='input-user-id']"));
-            if (loginInputs.Count > 0)
+            var emailInputs = _driver!.FindElements(By.CssSelector("[data-testid='input-login-email'] input, [data-testid='input-login-email'], [data-testid='input-user-id']"));
+            if (emailInputs.Count > 0 && emailInputs[0].Displayed)
             {
-                var input = loginInputs[0].TagName.Equals("input", StringComparison.OrdinalIgnoreCase) 
-                    ? loginInputs[0] 
-                    : loginInputs[0].FindElement(By.TagName("input"));
+                var input = emailInputs[0].TagName.Equals("input", StringComparison.OrdinalIgnoreCase) 
+                    ? emailInputs[0] 
+                    : emailInputs[0].FindElement(By.TagName("input"));
                 input.Clear();
-                input.SendKeys(userId);
+                input.SendKeys(email);
+
+                var passInputs = _driver.FindElements(By.CssSelector("[data-testid='input-login-password'] input, [data-testid='input-login-password']"));
+                if (passInputs.Count > 0)
+                {
+                    var pass = passInputs[0].TagName.Equals("input", StringComparison.OrdinalIgnoreCase) ? passInputs[0] : passInputs[0].FindElement(By.TagName("input"));
+                    pass.Clear();
+                    pass.SendKeys(password);
+                }
                 
                 var submitBtn = _driver.FindElement(By.CssSelector("[data-testid='btn-login-submit']"));
                 submitBtn.Click();
-                Thread.Sleep(500);
+
+                var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
+                wait.Until(d => d.FindElements(By.CssSelector("[data-testid='current-user-chip'], [data-testid='notebook-app-bar']")).Count > 0);
             }
         }
         catch
@@ -187,8 +240,7 @@ public class WorkoutTemplateAndOverloadTests
             return tabs.FirstOrDefault(t => t.Text.Contains("Workout Templates") || t.GetAttribute("data-testid") == "tab-workout-templates");
         });
         Assert.IsNotNull(workoutTemplatesTab, "Workout Templates tab should be present.");
-        workoutTemplatesTab.Click();
-        Thread.Sleep(400);
+        SafeClick(workoutTemplatesTab);
 
         // Fill in the Workout Template Name
         var templateNameField = wait.Until(d =>
@@ -206,15 +258,23 @@ public class WorkoutTemplateAndOverloadTests
         // Click 'Create Workout Template'
         var createTemplateBtn = wait.Until(d => d.FindElement(By.CssSelector("[data-testid='create-workout-template-btn'], button[type='submit']")));
         Assert.IsTrue(createTemplateBtn.Enabled, "Create Workout Template button should be enabled after entering name and selecting exercises.");
-        createTemplateBtn.Click();
+        SafeClick(createTemplateBtn);
 
         // Verify template creation via UI notification or list item
-        var templateCreatedNotice = wait.Until(d =>
+        string lastBodyText = "";
+        try
         {
-            var text = d.FindElement(By.TagName("body")).Text;
-            return text.Contains(templateName, StringComparison.OrdinalIgnoreCase);
-        });
-        Assert.IsTrue(templateCreatedNotice, $"Newly created template '{templateName}' should be rendered on the page.");
+            var templateCreatedNotice = wait.Until(d =>
+            {
+                lastBodyText = d.FindElement(By.TagName("body")).Text;
+                return lastBodyText.Contains(templateName, StringComparison.OrdinalIgnoreCase);
+            });
+            Assert.IsTrue(templateCreatedNotice, $"Newly created template '{templateName}' should be rendered on the page.");
+        }
+        catch (WebDriverTimeoutException)
+        {
+            Assert.Fail($"Timed out waiting for template '{templateName}' on page. Body text was:\n{lastBodyText}");
+        }
 
         // =========================================================================================
         // STEP 2: Start Session 1 from the Created Template
@@ -224,15 +284,14 @@ public class WorkoutTemplateAndOverloadTests
             var tabs = d.FindElements(By.CssSelector("[data-testid='tab-start-session'], .v-tab"));
             return tabs.FirstOrDefault(t => t.Text.Contains("Start Session") || t.GetAttribute("data-testid") == "tab-start-session");
         });
-        startSessionTab.Click();
-        Thread.Sleep(400);
+        SafeClick(startSessionTab);
 
         // Select the created workout template from the dropdown
         SelectVuetifyOption(By.CssSelector("[data-testid='select-workout-template']"), templateName, wait);
 
         // Click 'Begin Workout Session'
         var beginSessionBtn = wait.Until(d => d.FindElement(By.CssSelector("[data-testid='begin-workout-session-btn'], button[type='submit']")));
-        beginSessionBtn.Click();
+        SafeClick(beginSessionBtn);
 
         // Wait for Active Session view to load with set rows
         wait.Until(d => d.FindElements(By.CssSelector("[data-testid='set-row']")).Count > 0);
@@ -267,8 +326,7 @@ public class WorkoutTemplateAndOverloadTests
             var rows = d.FindElements(By.CssSelector("[data-testid='set-row']"));
             return rows[0].FindElement(By.CssSelector("[data-testid='complete-set-btn']"));
         });
-        completeSet1Btn.Click();
-        Thread.Sleep(300);
+        SafeClick(completeSet1Btn);
 
         // Complete Set 2 if present
         var setRows = _driver.FindElements(By.CssSelector("[data-testid='set-row']"));
@@ -279,8 +337,7 @@ public class WorkoutTemplateAndOverloadTests
             var set2Reps = setRows[1].FindElement(By.CssSelector("[data-testid='set-reps-input'] input"));
             SetInputValue(set2Reps, "8");
             var completeSet2Btn = setRows[1].FindElement(By.CssSelector("[data-testid='complete-set-btn']"));
-            completeSet2Btn.Click();
-            Thread.Sleep(300);
+            SafeClick(completeSet2Btn);
         }
 
         // Complete Set 3 if present
@@ -292,13 +349,12 @@ public class WorkoutTemplateAndOverloadTests
             var set3Reps = setRows[2].FindElement(By.CssSelector("[data-testid='set-reps-input'] input"));
             SetInputValue(set3Reps, "6");
             var completeSet3Btn = setRows[2].FindElement(By.CssSelector("[data-testid='complete-set-btn']"));
-            completeSet3Btn.Click();
-            Thread.Sleep(300);
+            SafeClick(completeSet3Btn);
         }
 
         // Finish & Save Session 1
         var finishSession1Btn = wait.Until(d => d.FindElement(By.CssSelector("[data-testid='finish-workout-btn']")));
-        finishSession1Btn.Click();
+        SafeClick(finishSession1Btn);
 
         // Wait for Session 1 to be saved successfully to PostgreSQL and redirect to history
         wait.Until(d =>
@@ -317,8 +373,7 @@ public class WorkoutTemplateAndOverloadTests
             var tabs = d.FindElements(By.CssSelector("[data-testid='tab-start-session'], .v-tab"));
             return tabs.FirstOrDefault(t => t.Text.Contains("Start Session") || t.GetAttribute("data-testid") == "tab-start-session");
         });
-        startSessionTab.Click();
-        Thread.Sleep(600);
+        SafeClick(startSessionTab);
         wait.Until(d => d.FindElement(By.CssSelector("[data-testid='select-workout-template']")).Displayed);
 
         // Select the same template again
@@ -326,7 +381,7 @@ public class WorkoutTemplateAndOverloadTests
 
         // Click 'Begin Workout Session' for Session 2
         beginSessionBtn = wait.Until(d => d.FindElement(By.CssSelector("[data-testid='begin-workout-session-btn'], button[type='submit']")));
-        beginSessionBtn.Click();
+        SafeClick(beginSessionBtn);
 
         // Wait for active session view to load
         wait.Until(d => d.FindElements(By.CssSelector("[data-testid='set-row']")).Count > 0);
@@ -390,12 +445,11 @@ public class WorkoutTemplateAndOverloadTests
             var rows = d.FindElements(By.CssSelector("[data-testid='set-row']"));
             return rows[0].FindElement(By.CssSelector("[data-testid='complete-set-btn']"));
         });
-        session2CompleteSet1Btn.Click();
-        Thread.Sleep(300);
+        SafeClick(session2CompleteSet1Btn);
 
         // Finish & Save Session 2
         var finishSession2Btn = wait.Until(d => d.FindElement(By.CssSelector("[data-testid='finish-workout-btn']")));
-        finishSession2Btn.Click();
+        SafeClick(finishSession2Btn);
 
         wait.Until(d =>
         {
