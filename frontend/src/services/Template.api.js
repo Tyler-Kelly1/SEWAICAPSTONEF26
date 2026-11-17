@@ -34,27 +34,21 @@ const TemplateApi = {
       userId: activeUserId || workoutTemplatePayload?.userId
     }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/workout-templates`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify(payload)
-      })
+    const response = await fetch(`${API_BASE_URL}/workout-templates`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify(payload)
+    })
 
-      if (response.ok) {
-        return await response.json()
-      }
-    } catch {
-      // If endpoint is not yet present on backend, return local object with id
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(errorText || `Failed to create workout template (HTTP ${response.status})`)
     }
 
-    return {
-      id: Date.now(),
-      ...payload
-    }
+    return await response.json()
   },
 
   async updateWorkoutTemplate(id, workoutTemplatePayload) {

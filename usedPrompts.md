@@ -378,6 +378,12 @@ This file records all AI prompts used during the development of this project in 
 > [Approved] auth-implementation-plan.md
 
 
+### [2026-11-17 14:18:34 -06:00] - User: tyler
+**Prompt:**
+> Auth appears to be working well, but there are two major bugs currrently, 1. When a user creates a template and then tries to load the workout template in session there are two duplicates indicating double creation, 2. A users avaible templates are not displated in the template view below create template, even when the user has templates
+
+
+
 
 
 

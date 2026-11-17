@@ -37,10 +37,12 @@ const userExerciseTemplates = computed(() => {
 
 // Filtered workout templates for selected user
 const filteredWorkoutTemplates = computed(() => {
-  return props.workoutTemplates.filter(workoutTemplate => 
-    workoutTemplate.workout_Name === 'Power Upper Body Workout' || 
-    (activeUser.value && workoutTemplate.userId === activeUser.value)
-  )
+  return props.workoutTemplates.filter(workoutTemplate => {
+    if (workoutTemplate.userId && activeUser.value && workoutTemplate.userId !== activeUser.value) {
+      return false
+    }
+    return true
+  })
 })
 
 const handleSubmit = () => {

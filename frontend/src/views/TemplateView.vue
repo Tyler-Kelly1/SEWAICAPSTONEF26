@@ -48,10 +48,13 @@ const deletingTemplate = ref(null)
 
 const userWorkoutTemplates = computed(() => {
   const targetUser = activeUser.value
-  return workoutTemplates.value.filter(workoutTemplate => 
-    workoutTemplate.workout_Name === 'Power Upper Body Workout' ||
-    (targetUser && workoutTemplate.userId === targetUser)
-  )
+  return workoutTemplates.value.filter(workoutTemplate => {
+    // If template explicitly belongs to another user, exclude it
+    if (workoutTemplate.userId && targetUser && workoutTemplate.userId !== targetUser) {
+      return false
+    }
+    return true
+  })
 })
 
 const loadData = async () => {
@@ -196,6 +199,7 @@ const loadData = async () => {
 
 // 1. CREATE Workout Template
 const handleCreateWorkoutTemplate = async () => {
+  if (submitting.value) return
   if (!newWorkoutName.value.trim() || selectedExerciseIds.value.length === 0) return
 
   submitting.value = true
@@ -222,7 +226,17 @@ const handleCreateWorkoutTemplate = async () => {
     }
 
     const created = await TemplateApi.createWorkoutTemplate(payload)
-    workoutTemplates.value.push(created)
+    if (!created.userId) {
+      created.userId = activeUser.value
+    }
+
+    const existingIndex = workoutTemplates.value.findIndex(wt => wt.id === created.id || (wt.workout_Name.toLowerCase() === created.workout_Name.toLowerCase() && wt.userId === created.userId))
+    if (existingIndex >= 0) {
+      workoutTemplates.value[existingIndex] = created
+    } else {
+      workoutTemplates.value.push(created)
+    }
+
     successMessage.value = `Successfully created Workout Template "${payload.workout_Name}"!`
     newWorkoutName.value = ''
     selectedExerciseIds.value = []
@@ -485,7 +499,6 @@ onMounted(() => {
                   prepend-icon="mdi-content-save"
                   :loading="submitting"
                   :disabled="!newWorkoutName.trim() || selectedExerciseIds.length === 0"
-                  @click="handleCreateWorkoutTemplate"
                 >
                   Create Workout Template
                 </v-btn>

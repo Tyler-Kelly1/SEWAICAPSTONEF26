@@ -233,10 +233,30 @@ public class WorkoutSessionEngineTests
 
         // Assert
         Assert.IsNotNull(result);
+        Assert.AreEqual("tyler_dev", result.UserId);
         Assert.AreEqual("Pull Day Power", result.Workout_Name);
         Assert.AreEqual(1, result.ExerciseTemplates.Count);
         Assert.AreEqual("Lat Pulldown", result.ExerciseTemplates[0].Exercise_Name);
         Assert.AreEqual(1, result.ExerciseTemplates[0].SetTemplates.Count);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public async Task CreateWorkoutTemplateAsync_DuplicateName_ThrowsArgumentException()
+    {
+        // Arrange
+        var dto = new CreateWorkoutTemplateDto
+        {
+            UserId = "tyler_dev",
+            Workout_Name = "Duplicate Workout Test",
+            ExerciseTemplates = new List<CreateExerciseTemplateDto>()
+        };
+
+        // Act - First creation succeeds
+        await _engine.CreateWorkoutTemplateAsync(dto);
+
+        // Act - Second creation with same name for same user must throw
+        await _engine.CreateWorkoutTemplateAsync(dto);
     }
 
     [TestMethod]

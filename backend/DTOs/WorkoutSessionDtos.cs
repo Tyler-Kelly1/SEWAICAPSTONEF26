@@ -24,6 +24,7 @@ public class ExerciseTemplateDto
 public class WorkoutTemplateDto
 {
     public int Id { get; set; }
+    public string? UserId { get; set; }
     public string Workout_Name { get; set; } = string.Empty;
     public List<ExerciseTemplateDto> ExerciseTemplates { get; set; } = new();
 }

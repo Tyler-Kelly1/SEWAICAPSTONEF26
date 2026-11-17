@@ -251,10 +251,10 @@ public class WorkoutSessionEngine : IWorkoutSessionEngine
                 .ThenInclude(et => et.SetTemplates);
 
         // Allow access only to:
-        // 1. The global template ("Power Upper Body Workout" or "Upper Body Power Template" with UserId == null)
+        // 1. The global template ("Power Upper Body Workout", "Upper Body Power Template", or "Upper Body Template" with UserId == null)
         // 2. Custom templates created by the authenticated user
         query = query.Where(wt =>
-            (wt.UserId == null && (wt.Workout_Name == "Power Upper Body Workout" || wt.Workout_Name == "Upper Body Power Template")) ||
+            (wt.UserId == null && (wt.Workout_Name == "Power Upper Body Workout" || wt.Workout_Name == "Upper Body Power Template" || wt.Workout_Name == "Upper Body Template")) ||
             (!string.IsNullOrWhiteSpace(userId) && wt.UserId == userId));
 
         var templates = await query.ToListAsync();
@@ -268,7 +268,7 @@ public class WorkoutSessionEngine : IWorkoutSessionEngine
                 .ThenInclude(et => et.SetTemplates);
 
         query = query.Where(wt => wt.Id == id && (
-            (wt.UserId == null && (wt.Workout_Name == "Power Upper Body Workout" || wt.Workout_Name == "Upper Body Power Template")) ||
+            (wt.UserId == null && (wt.Workout_Name == "Power Upper Body Workout" || wt.Workout_Name == "Upper Body Power Template" || wt.Workout_Name == "Upper Body Template")) ||
             (!string.IsNullOrWhiteSpace(userId) && wt.UserId == userId)));
 
         var template = await query.FirstOrDefaultAsync();
@@ -288,10 +288,27 @@ public class WorkoutSessionEngine : IWorkoutSessionEngine
             throw new ArgumentException("User ID is required to create a workout template.");
         }
 
+        var trimmedName = dto.Workout_Name.Trim();
+        var trimmedUserId = dto.UserId.Trim();
+
+        if (trimmedName.Equals("Power Upper Body Workout", StringComparison.OrdinalIgnoreCase) ||
+            trimmedName.Equals("Upper Body Power Template", StringComparison.OrdinalIgnoreCase) ||
+            trimmedName.Equals("Upper Body Template", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException("Cannot create a template with the reserved global template name.");
+        }
+
+        var exists = await _context.WorkoutTemplates.AnyAsync(wt =>
+            wt.UserId == trimmedUserId && wt.Workout_Name.ToLower() == trimmedName.ToLower());
+        if (exists)
+        {
+            throw new ArgumentException($"A workout template named '{trimmedName}' already exists.");
+        }
+
         var workoutTemplate = new Workout_Template
         {
-            Workout_Name = dto.Workout_Name.Trim(),
-            UserId = dto.UserId.Trim()
+            Workout_Name = trimmedName,
+            UserId = trimmedUserId
         };
         _context.WorkoutTemplates.Add(workoutTemplate);
         await _context.SaveChangesAsync();
@@ -335,7 +352,7 @@ public class WorkoutSessionEngine : IWorkoutSessionEngine
             .Include(et => et.WorkoutTemplate);
 
         query = query.Where(et =>
-            (et.WorkoutTemplate != null && et.WorkoutTemplate.UserId == null && (et.WorkoutTemplate.Workout_Name == "Power Upper Body Workout" || et.WorkoutTemplate.Workout_Name == "Upper Body Power Template")) ||
+            (et.WorkoutTemplate != null && et.WorkoutTemplate.UserId == null && (et.WorkoutTemplate.Workout_Name == "Power Upper Body Workout" || et.WorkoutTemplate.Workout_Name == "Upper Body Power Template" || et.WorkoutTemplate.Workout_Name == "Upper Body Template")) ||
             (!string.IsNullOrWhiteSpace(userId) && (et.WorkoutTemplate == null || et.WorkoutTemplate.UserId == userId)));
 
         var templates = await query.ToListAsync();
@@ -452,6 +469,7 @@ public class WorkoutSessionEngine : IWorkoutSessionEngine
         return new WorkoutTemplateDto
         {
             Id = template.Id,
+            UserId = template.UserId,
             Workout_Name = template.Workout_Name,
             ExerciseTemplates = template.ExerciseTemplates?.Select(et => new ExerciseTemplateDto
             {

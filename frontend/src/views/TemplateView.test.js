@@ -333,4 +333,50 @@ describe('TemplateView.vue', () => {
       })
     )
   })
+
+  it('displays available workout templates for the active user below create template form', async () => {
+    vi.spyOn(TemplateApi, 'getWorkoutTemplates').mockResolvedValue([
+      { id: 1, userId: null, workout_Name: 'Power Upper Body Workout', exerciseTemplates: [] },
+      { id: 10, userId: 'athlete_2', workout_Name: 'Chest and Triceps', exerciseTemplates: [] }
+    ])
+
+    const wrapper = mount(TemplateView, {
+      props: { currentUserId: 'athlete_2' },
+      global: {
+        stubs: {
+          'v-card': { template: '<div><slot /></div>' },
+          'v-card-item': { template: '<div><slot /></div>' },
+          'v-card-title': { template: '<div><slot /></div>' },
+          'v-card-subtitle': { template: '<div><slot /></div>' },
+          'v-card-text': { template: '<div><slot /></div>' },
+          'v-card-actions': { template: '<div><slot /></div>' },
+          'v-icon': true,
+          'v-divider': true,
+          'v-select': true,
+          'v-text-field': true,
+          'v-btn': true,
+          'v-chip': true,
+          'v-row': { template: '<div><slot /></div>' },
+          'v-col': { template: '<div><slot /></div>' },
+          'v-form': true,
+          'v-tabs': true,
+          'v-tab': true,
+          'v-window': { template: '<div><slot /></div>' },
+          'v-window-item': { template: '<div><slot /></div>' },
+          'v-list': true,
+          'v-list-item': true,
+          'v-list-item-title': true,
+          'v-list-item-subtitle': true,
+          'v-dialog': true,
+          'v-alert': true,
+          ExerciseTemplateList: true,
+          CreateTemplateMenu: true
+        }
+      }
+    })
+
+    await wrapper.vm.loadData()
+    expect(wrapper.vm.userWorkoutTemplates.length).toBe(2)
+    expect(wrapper.text()).toContain('Chest and Triceps')
+  })
 })

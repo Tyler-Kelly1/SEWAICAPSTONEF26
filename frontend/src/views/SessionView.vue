@@ -95,13 +95,23 @@ const getBaselineExerciseTemplates = () => [
 ]
 
 const resolveActiveWorkoutTemplates = (fetchedTemplates) => {
+  let list = []
   if (fetchedTemplates && fetchedTemplates.length > 0) {
-    return fetchedTemplates
+    list = fetchedTemplates
+  } else if (props.workoutTemplates && props.workoutTemplates.length > 0) {
+    list = props.workoutTemplates
+  } else {
+    list = getBaselineWorkoutTemplates()
   }
-  if (props.workoutTemplates && props.workoutTemplates.length > 0) {
-    return props.workoutTemplates
-  }
-  return getBaselineWorkoutTemplates()
+
+  const seen = new Set()
+  return list.filter(wt => {
+    if (!wt) return false
+    const key = wt.workout_Name ? wt.workout_Name.toLowerCase() : `id_${wt.id}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
 }
 
 const resolveActiveExerciseTemplates = (fetchedTemplates) => {

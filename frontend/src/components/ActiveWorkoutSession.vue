@@ -32,9 +32,16 @@ const workoutName = ref('Push Day Session')
 const sessionStarted = ref(false)
 const startTime = ref(null)
 
-// Workout templates for active session
+// Workout templates for active session (deduplicated by workout name/id)
 const userWorkoutTemplates = computed(() => {
-  return props.workoutTemplates
+  const seen = new Set()
+  return (props.workoutTemplates || []).filter(wt => {
+    if (!wt) return false
+    const key = wt.workout_Name ? wt.workout_Name.toLowerCase() : `id_${wt.id}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
 })
 
 // Exercise structure for active session
