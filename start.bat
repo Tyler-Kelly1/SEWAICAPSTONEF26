@@ -8,8 +8,8 @@ echo ==========================================
 :: Navigate to script directory
 cd /d "%~dp0"
 
-:: 1. Start Docker Container (PostgreSQL)
-echo [1/3] Starting containerized PostgreSQL DB...
+:: 1. Start Docker Containers (PostgreSQL & pgAdmin)
+echo [1/3] Starting containerized PostgreSQL DB & Admin Dashboard...
 where docker-compose >nul 2>&1
 if %errorlevel% equ 0 (
     docker-compose up -d
@@ -18,6 +18,7 @@ if %errorlevel% equ 0 (
 )
 
 echo Waiting for PostgreSQL database to be ready...
+echo PostgreSQL Admin Dashboard available at: http://localhost:5050
 timeout /t 3 /nobreak >nul
 
 :: 2. Start .NET Core Backend API in a separate window

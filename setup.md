@@ -20,6 +20,7 @@ Before setting up the project, ensure you have installed the following required 
 ## 🏗️ Tech Stack Overview
 
 - **Database:** PostgreSQL 16 (Containerized via Docker)
+- **Database Administration:** pgAdmin 4 Web Dashboard (Containerized via Docker)
 - **Backend:** .NET 10.0 Core Web API with Entity Framework Core & Npgsql
 - **Frontend:** Vue 3 + Vuetify 3 built with Vite
 
@@ -29,17 +30,32 @@ Before setting up the project, ensure you have installed the following required 
 
 The repository provides automated startup scripts to launch Docker, the Backend, and the Frontend simultaneously.
 
-### On Windows
+### Full Application Launch
+#### On Windows
 Run the Windows batch file in Command Prompt or PowerShell:
 ```cmd
 .\start.bat
 ```
 
-### On Linux / macOS / Git Bash
+#### On Linux / macOS / Git Bash
 Make the script executable (if needed) and run:
 ```bash
 chmod +x start.sh
 ./start.sh
+```
+
+### PostgreSQL Admin Dashboard (pgAdmin 4) Entry Point
+To launch only the PostgreSQL database and open the pgAdmin 4 web dashboard in your browser:
+
+#### On Windows
+```cmd
+.\start-db-admin.bat
+```
+
+#### On Linux / macOS / Git Bash
+```bash
+chmod +x start-db-admin.sh
+./start-db-admin.sh
 ```
 
 ---
@@ -48,14 +64,27 @@ chmod +x start.sh
 
 If you prefer to start each service manually for development or debugging, follow these steps:
 
-### 1. Start the Containerized PostgreSQL Database
+### 1. Start the Containerized PostgreSQL Database & pgAdmin Dashboard
 From the root directory of the project, run:
 ```bash
 docker compose up -d
 ```
 *(Alternatively, use `docker-compose up -d` if using older Docker Compose versions).*
 
-This launches a PostgreSQL 16 container running on port `5432` with database `overloaddb`.
+This launches:
+- **PostgreSQL 16 container** (`overload_postgres`) listening on port `5432` with database `overloaddb`.
+- **pgAdmin 4 container** (`overload_pgadmin`) listening on port `5050` with desktop mode and auto-imported server definition.
+
+#### Accessing the PostgreSQL Admin Dashboard
+- **URL:** [http://localhost:5050](http://localhost:5050)
+- **Mode:** Desktop Mode (automatic direct access, no login prompt required)
+- **Pre-configured Server Connection:** `Overload DB (Local)`
+  - **Host Name:** `postgres`
+  - **Port:** `5432`
+  - **Maintenance DB:** `overloaddb`
+  - **Username:** `postgres`
+  - **Password:** `postgrespassword` (defined in `.env`)
+
 
 ### 2. Set Up & Run the .NET Core Backend
 Navigate to the `backend/` directory:

@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Overload DB (Local)",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "overloaddb",
+      "Username": "postgres",
+      "SSLMode": "prefer"
+    }
+  }
+}

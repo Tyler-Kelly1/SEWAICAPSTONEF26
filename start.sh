@@ -15,8 +15,8 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-# 1. Start Docker Container (PostgreSQL)
-echo "[1/3] Starting containerized PostgreSQL DB..."
+# 1. Start Docker Containers (PostgreSQL & pgAdmin)
+echo "[1/3] Starting containerized PostgreSQL DB & Admin Dashboard..."
 if command -v docker-compose &> /dev/null; then
     docker-compose up -d
 else
@@ -24,6 +24,7 @@ else
 fi
 
 echo "Waiting for PostgreSQL database to be ready..."
+echo "PostgreSQL Admin Dashboard available at: http://localhost:5050"
 sleep 3
 
 # 2. Start .NET Core Backend

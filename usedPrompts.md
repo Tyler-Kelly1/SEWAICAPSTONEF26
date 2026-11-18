@@ -383,6 +383,17 @@ This file records all AI prompts used during the development of this project in 
 > Auth appears to be working well, but there are two major bugs currrently, 1. When a user creates a template and then tries to load the workout template in session there are two duplicates indicating double creation, 2. A users avaible templates are not displated in the template view below create template, even when the user has templates
 
 
+### [2026-11-18 09:17:18 -06:00] - User: tyler
+**Prompt:**
+> kill running instances
+
+### [2026-11-18 09:23:40 -06:00] - User: tyler
+**Prompt:**
+> add support for a postgress admin dashboard, add an entry point for this to the repo. Do not make your own dash board use an existing software
+
+
+
+
 
 
 
