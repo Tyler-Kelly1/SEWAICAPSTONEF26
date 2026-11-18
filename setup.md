@@ -156,6 +156,27 @@ dotnet test Overload.slnx
 
 ---
 
+## 🐳 Containerized Production Stack (Docker Compose)
+
+For local verification of the production container build or for deployment on an Amazon EC2 instance:
+
+```bash
+# Build and run the entire production container stack
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+### Services Launched:
+- **Frontend Container (`overload_frontend`):** Vue 3 + Vuetify SPA compiled and served via Nginx on port `80` with SPA routing and `/api/` reverse proxying.
+- **Backend API Container (`overload_backend`):** .NET 10.0 Web API running on Kestrel port `8080` (exposed on host port `5245`).
+- **PostgreSQL Database (`overload_postgres`):** PostgreSQL 16 container running on port `5432`.
+- **pgAdmin Dashboard (`overload_pgadmin`):** Web administration interface accessible at [http://localhost:5050](http://localhost:5050).
+
+### Health Check Endpoint:
+- **Direct Backend:** `GET http://localhost:5245/health`
+- **Via Frontend Proxy:** `GET http://localhost/health`
+
+---
+
 ## 🔍 Verification & Troubleshooting
 
 1. **Verify Database Container:**

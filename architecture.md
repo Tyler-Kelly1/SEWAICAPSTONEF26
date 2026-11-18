@@ -122,6 +122,8 @@ Service Layer ((PageName).api.js) ➔ Parent Component ➔ Child Component
 | Date | User | Feature / Flow | User Choice | Justification |
 | :--- | :--- | :--- | :--- | :--- |
 | 2026-10-03 | tyler | Dashboard Statistics & Service Layer | FE Props Aggregation (Current) / Dedicated Service & Backend Aggregation (Future) | Solid approach for current milestone. Moving forward we will move dashboard API logic into a separate service layer module (`Dashboard.api.js`) and do heavy statistics in the Backend. |
+| 2026-11-18 | tyler | AWS Deployment & Production Hosting Architecture | Option C: Amazon EC2 + Multi-Container Docker Compose Stack | Cost-optimized deployment fitting within AWS Free Tier / low-cost instance (t4g.small/t3.micro). Uses multi-container Docker Compose (PostgreSQL, .NET 10 Web API Backend, Vue 3 + Vuetify on Nginx with reverse proxy, pgAdmin), providing the simplest migration path from local development and automated CI/CD via GitHub Actions. |
+
 
 ---
 

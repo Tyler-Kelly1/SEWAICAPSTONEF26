@@ -391,6 +391,21 @@ This file records all AI prompts used during the development of this project in 
 **Prompt:**
 > add support for a postgress admin dashboard, add an entry point for this to the repo. Do not make your own dash board use an existing software
 
+### [2026-11-18 10:15:11 -06:00] - User: tyler
+**Prompt:**
+> /plan It is now time for deloyment, the current plan is to use Github Actions with AWS. The first step would be to containerize the Frontend and the backend.
+
+### [2026-11-18 10:22:47 -06:00] - User: tyler
+**Prompt:**
+> [Approved] deployment-containerization-plan.md
+
+### [2026-11-18 10:22:56 -06:00] - User: tyler
+**Prompt:**
+> Approved with option C
+
+
+
+
 
 
 
