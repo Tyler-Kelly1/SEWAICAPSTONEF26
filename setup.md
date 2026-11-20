@@ -1,5 +1,9 @@
 # Development Setup Guide
 
+> [!NOTE]
+> **Production Live URL:** The application is deployed live at **[http://overload.quest](http://overload.quest)**.  
+> For details on our automated testing, containerization, and AWS EC2 deployment workflow, please see [`CICD.md`](file:///C:/Users/tyler/Overload/CICD.md).
+
 This document provides instructions for setting up and running the **Overload** full-stack development environment locally.
 
 ---

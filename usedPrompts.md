@@ -572,6 +572,10 @@ Warning: Permanently added 'ec2-77-113-188-231.us-east-2.compute.amazonaws.com' 
 **Prompt:**
 > the final step of the deployment during the ssh build keeps on getting stuck any ideas why this could be?
 
+### [2026-11-19 20:41:40 -06:00] - User: tyler
+**Prompt:**
+> write a detailed CI/CD guide explaining how to set up local dev as well as our pipleline, be sure to include the app is live at http://overload.quest, push this change to a new branch "staging" to avoid triggering the pipeline.
+
 
 
 
