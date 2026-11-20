@@ -75,7 +75,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       EC2_HOST: ${{ secrets.EC2_HOST }}
-      EC2_USER: ${{ secrets.EC2_USER }}
       EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
     steps:
       - name: Checkout Source Code
@@ -86,6 +85,7 @@ jobs:
         if: env.EC2_HOST != '' && env.EC2_SSH_KEY != ''
         run: |
           mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
 
           # Strip Windows CR (\r) line endings and write key
           printf "%s\n" "$EC2_SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key
@@ -94,26 +94,27 @@ jobs:
           # Validate key structure
           ssh-keygen -l -f ~/.ssh/deploy_key
 
-          # Resolve SSH username (default to ec2-user for Amazon Linux)
-          DEPLOY_USER="ec2-user"
-          if [ -n "$EC2_USER" ] && [ "$EC2_USER" != "true" ] && [ "$EC2_USER" != "false" ]; then
-            DEPLOY_USER="$EC2_USER"
+          # Use EC2_HOST directly (e.g. ec2-user@ec2-xx-xx-xx-xx.compute.amazonaws.com)
+          TARGET_HOST="${EC2_HOST}"
+          if [[ "$TARGET_HOST" != *"@"* ]]; then
+            TARGET_HOST="ec2-user@${TARGET_HOST}"
           fi
-          echo "Deploying to ${EC2_HOST} as user: ${DEPLOY_USER}"
 
-          # Ensure deployment directory exists on EC2
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${DEPLOY_USER}@${EC2_HOST} "mkdir -p ~/overload"
+          echo "Connecting to ${TARGET_HOST}"
+
+          # Ensure deployment directory exists on EC2 (with verbose debugging)
+          ssh -v -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${TARGET_HOST} "mkdir -p ~/overload"
 
           # Sync repository deployment files to EC2
-          rsync -avz -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+          rsync -avz -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o IdentitiesOnly=yes" \
             --exclude '.git' \
             --exclude 'node_modules' \
             --exclude 'bin' \
             --exclude 'obj' \
-            ./ ${DEPLOY_USER}@${EC2_HOST}:~/overload/
+            ./ ${TARGET_HOST}:~/overload/
 
           # Execute Docker Compose production stack on EC2
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${DEPLOY_USER}@${EC2_HOST} << 'EOF'
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${TARGET_HOST} << 'EOF'
             cd ~/overload
             docker compose -f docker-compose.prod.yml up -d --build
             docker system prune -f

@@ -525,4 +525,27 @@ Warning: Permanently added 'ec2-77-113-188-231.us-east-2.compute.amazonaws.com' 
 Error: Process completed with exit code 255.
 ##[debug]Finishing: Deploy to EC2 via SSH
 
+### [2026-11-19 19:26:38 -06:00] - User: tyler
+**Prompt:**
+> git commit -m "Updated deployment file"
+
+### [2026-11-19 19:30:47 -06:00] - User: tyler
+**Prompt:**
+> it still failed Run mkdir -p ~/.ssh
+2048 SHA256:a8wgnfX20Jx/4Z9wZ7eSGTxHVaCHvZ+cNlCjsrLgs0U no comment (RSA)
+Deploying to *** as user: ***
+Warning: Permanently added 'ec2-77-113-188-231.us-east-2.compute.amazonaws.com' (ED25519) to the list of known hosts.
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+***@***: Permission denied (publickey,gssapi-keyex,gssapi-with-mic).
+
+### [2026-11-19 19:33:55 -06:00] - User: tyler
+**Prompt:**
+> That is not the problem, ec2-user is properly configured
+
+### [2026-11-19 19:36:19 -06:00] - User: tyler
+**Prompt:**
+> or instead remove the username secret all together and just use the host name secret in full
+
 
