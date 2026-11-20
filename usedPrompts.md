@@ -548,4 +548,26 @@ Warning: Permanently added 'ec2-77-113-188-231.us-east-2.compute.amazonaws.com' 
 **Prompt:**
 > or instead remove the username secret all together and just use the host name secret in full
 
+### [2026-11-19 19:38:53 -06:00] - User: tyler
+**Prompt:**
+> git commit -m "Decided to use hostname with user attatched instead of opting for 2 seperate secret key injections"
+
+### [2026-11-19 19:39:00 -06:00] - User: tyler
+**Prompt:**
+> ! git commit -m "Decided to use hostname with user attatched instead of opting for 2 seperate secret key injections"
+
+### [2026-11-19 19:48:56 -06:00] - User: tyler
+**Prompt:**
+> the deployment is working now, for registering a Domain name with my instance, does it have to be IPV6 and https or is it okay as http
+
+### [2026-11-19 19:54:41 -06:00] - User: tyler
+**Prompt:**
+> how to set up elastic record
+
+### [2026-11-19 20:03:45 -06:00] - User: tyler
+**Prompt:**
+> Were going to test these changes with a simple update, currently the svg being used by index to display on the tab icon is default vite icon, update it insted to use a simple weight barbell icon
+
+
+
 
