@@ -443,5 +443,86 @@ This file records all AI prompts used during the development of this project in 
 **Prompt:**
 > The application is now set up in both AWS as instance with the docker containers running everything, how can I set up auto deploying from Github actions now
 
+### [2026-11-19 19:10:39 -06:00] - User: tyler
+**Prompt:**
+> double check the current commit to ensure no secrets are being pushed
+
+### [2026-11-19 19:16:26 -06:00] - User: tyler
+**Prompt:**
+> Something broke on the deployment releated to SSH what does this error mean? Run mkdir -p ~/.ssh
+  mkdir -p ~/.ssh
+  echo "$EC2_SSH_KEY" > ~/.ssh/deploy_key
+  chmod 600 ~/.ssh/deploy_key
+  
+  # Ensure deployment directory exists on EC2
+  ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} "mkdir -p ~/overload"
+  
+  # Sync repository deployment files to EC2
+  rsync -avz -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+    --exclude '.git' \
+    --exclude 'node_modules' \
+    --exclude 'bin' \
+    --exclude 'obj' \
+    ./ ${EC2_USER}@${EC2_HOST}:~/overload/
+  
+  # Execute Docker Compose production stack on EC2
+  ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
+    cd ~/overload
+    docker compose -f docker-compose.prod.yml up -d --build
+    docker system prune -f
+  EOF
+  shell: /usr/bin/bash -e {0}
+  env:
+    EC2_HOST: ***
+    EC2_USER: ***
+    EC2_SSH_KEY: ***
+Warning: Permanently added 'ec2-77-113-188-231.us-east-2.compute.amazonaws.com' (ED25519) to the list of known hosts.
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+***@***: Permission denied (publickey,gssapi-keyex,gssapi-with-mic).
+Error: Process completed with exit code 255.
+
+### [2026-11-19 19:17:19 -06:00] - User: tyler
+**Prompt:**
+> continue
+
+### [2026-11-19 19:23:59 -06:00] - User: tyler
+**Prompt:**
+> I ensure all these steps and re ran this failed step here is the result Run mkdir -p ~/.ssh
+  mkdir -p ~/.ssh
+  echo "$EC2_SSH_KEY" > ~/.ssh/deploy_key
+  chmod 600 ~/.ssh/deploy_key
+  
+  # Ensure deployment directory exists on EC2
+  ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} "mkdir -p ~/overload"
+  
+  # Sync repository deployment files to EC2
+  rsync -avz -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+    --exclude '.git' \
+    --exclude 'node_modules' \
+    --exclude 'bin' \
+    --exclude 'obj' \
+    ./ ${EC2_USER}@${EC2_HOST}:~/overload/
+  
+  # Execute Docker Compose production stack on EC2
+  ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
+    cd ~/overload
+    docker compose -f docker-compose.prod.yml up -d --build
+    docker system prune -f
+  EOF
+  shell: /usr/bin/bash -e {0}
+  env:
+    EC2_HOST: ***
+    EC2_USER: ***
+    EC2_SSH_KEY: ***
+##[debug]/usr/bin/bash -e /home/runner/work/_temp/ec5d76b8-c071-4fa5-9a6f-b3779f2b28a1.sh
+Warning: Permanently added 'ec2-77-113-188-231.us-east-2.compute.amazonaws.com' (ED25519) to the list of known hosts.
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+***@***: Permission denied (publickey,gssapi-keyex,gssapi-with-mic).
+Error: Process completed with exit code 255.
+##[debug]Finishing: Deploy to EC2 via SSH
 
 

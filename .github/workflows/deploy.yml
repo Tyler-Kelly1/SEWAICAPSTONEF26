@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       EC2_HOST: ${{ secrets.EC2_HOST }}
-      EC2_USER: ${{ secrets.EC2_USER != '' && secrets.EC2_USER || 'ec2-user' }}
+      EC2_USER: ${{ secrets.EC2_USER }}
       EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
     steps:
       - name: Checkout Source Code
@@ -86,11 +86,23 @@ jobs:
         if: env.EC2_HOST != '' && env.EC2_SSH_KEY != ''
         run: |
           mkdir -p ~/.ssh
-          echo "$EC2_SSH_KEY" > ~/.ssh/deploy_key
+
+          # Strip Windows CR (\r) line endings and write key
+          printf "%s\n" "$EC2_SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          
+
+          # Validate key structure
+          ssh-keygen -l -f ~/.ssh/deploy_key
+
+          # Resolve SSH username (default to ec2-user for Amazon Linux)
+          DEPLOY_USER="ec2-user"
+          if [ -n "$EC2_USER" ] && [ "$EC2_USER" != "true" ] && [ "$EC2_USER" != "false" ]; then
+            DEPLOY_USER="$EC2_USER"
+          fi
+          echo "Deploying to ${EC2_HOST} as user: ${DEPLOY_USER}"
+
           # Ensure deployment directory exists on EC2
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} "mkdir -p ~/overload"
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${DEPLOY_USER}@${EC2_HOST} "mkdir -p ~/overload"
 
           # Sync repository deployment files to EC2
           rsync -avz -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
@@ -98,10 +110,10 @@ jobs:
             --exclude 'node_modules' \
             --exclude 'bin' \
             --exclude 'obj' \
-            ./ ${EC2_USER}@${EC2_HOST}:~/overload/
-          
+            ./ ${DEPLOY_USER}@${EC2_HOST}:~/overload/
+
           # Execute Docker Compose production stack on EC2
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${DEPLOY_USER}@${EC2_HOST} << 'EOF'
             cd ~/overload
             docker compose -f docker-compose.prod.yml up -d --build
             docker system prune -f
