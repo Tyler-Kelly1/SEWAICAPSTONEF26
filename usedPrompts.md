@@ -407,16 +407,41 @@ This file records all AI prompts used during the development of this project in 
 **Prompt:**
 > I just pulled in from origin review the merege and ensure there are no issues
 
+### [2026-11-18 10:47:26 -06:00] - User: tyler
+**Prompt:**
+> Ive created an instance now on AWS, how can I connect and migrate my Github Repo/containers
 
+### [2026-11-18 10:51:50 -06:00] - User: tyler
+**Prompt:**
+> regenerate step 4 using amazon linux
 
+### [2026-11-19 11:10:25 -06:00] - User: tyler
+**Prompt:**
+> Explain what those commands are doing
 
+### [2026-11-19 11:23:16 -06:00] - User: tyler
+**Prompt:**
+> docker compose is not found?
 
+### [2026-11-19 11:27:51 -06:00] - User: tyler
+**Prompt:**
+> and what did those commands do
 
+### [2026-11-19 11:32:28 -06:00] - User: tyler
+**Prompt:**
+> im getting this error compose build requires buildx 0.17.0 or later
 
+### [2026-11-19 11:37:04 -06:00] - User: tyler
+**Prompt:**
+> docker: 'buildx' is not a docker command. even after installing
 
+### [2026-11-19 11:53:20 -06:00] - User: tyler
+**Prompt:**
+> What would the inbound and outbound rules be for general users for AWS secuirty group for the app
 
-
-
+### [2026-11-19 18:59:15 -06:00] - User: tyler
+**Prompt:**
+> The application is now set up in both AWS as instance with the docker containers running everything, how can I set up auto deploying from Github actions now
 
 
 
