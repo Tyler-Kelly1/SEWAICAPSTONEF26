@@ -568,6 +568,10 @@ Warning: Permanently added 'ec2-77-113-188-231.us-east-2.compute.amazonaws.com' 
 **Prompt:**
 > Were going to test these changes with a simple update, currently the svg being used by index to display on the tab icon is default vite icon, update it insted to use a simple weight barbell icon
 
+### [2026-11-19 20:22:17 -06:00] - User: tyler
+**Prompt:**
+> the final step of the deployment during the ssh build keeps on getting stuck any ideas why this could be?
+
 
 
 

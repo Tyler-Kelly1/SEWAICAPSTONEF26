@@ -115,7 +115,22 @@ jobs:
 
           # Execute Docker Compose production stack on EC2
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o IdentitiesOnly=yes ${TARGET_HOST} << 'EOF'
+            set -e
             cd ~/overload
-            docker compose -f docker-compose.prod.yml up -d --build
+
+            # Build images sequentially with plain text output to stream logs and conserve RAM
+            echo "==> Building Backend container..."
+            docker compose -f docker-compose.prod.yml build --progress=plain backend
+
+            echo "==> Building Frontend container..."
+            docker compose -f docker-compose.prod.yml build --progress=plain frontend
+
+            echo "==> Starting production stack..."
+            docker compose -f docker-compose.prod.yml up -d
+
+            echo "==> Cleaning up unused images..."
             docker system prune -f
+
+            echo "==> Stack status:"
+            docker compose -f docker-compose.prod.yml ps
           EOF
